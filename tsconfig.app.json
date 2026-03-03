@@ -20,7 +20,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
@@ -28,6 +28,7 @@
     "paths": {
       "*": ["src/*"],
       "app/*": ["src/app/*"],
+      "pages/*": ["src/pages/*"],
       "shared/*": ["src/shared/*"],
       "features/*": ["src/features/*"],
       "widgets/*": ["src/widgets/*"],
