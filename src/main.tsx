@@ -5,9 +5,7 @@ import { store } from './app/providers/store';
 import { AppProvider } from 'app/providers';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <AppProvider />
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <AppProvider />
+  </Provider>,
 );

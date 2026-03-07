@@ -1,6 +1,10 @@
 export enum Routes {
   ROOT = '/',
+  CONSULTATIONS = '/consultations',
+  ABOUT_US = '/about_us',
   LOGIN = '/login',
+  REGISTER = '/register',
+  INVITE = '/invite',
 }
 
 type ExtractParam<S extends string> = S extends `${string}:${infer Param}/${infer Rest}`
@@ -25,7 +29,11 @@ function buildPath<P extends Routes>(path: P, params?: ParamsOf<P>): string {
 
 export const paths = {
   root: () => Routes.ROOT,
+  consultations: () => Routes.CONSULTATIONS,
+  about: () => Routes.ABOUT_US,
   login: () => Routes.LOGIN,
+  register: () => '/register',
+  invite: (token: string) => `/invite/${encodeURIComponent(token)}`,
 } as const;
 
 // Дополнительно: универсальный helper, если хочется "по ключу"

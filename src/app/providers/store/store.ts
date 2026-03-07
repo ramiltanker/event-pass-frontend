@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { inviteReducer } from 'entities/Invite';
 import { api } from 'shared/api';
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
+    invite: inviteReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
 });

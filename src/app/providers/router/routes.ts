@@ -5,26 +5,75 @@ export const routes: RouteObject[] = [
   {
     path: Routes.ROOT,
     lazy: async () => {
-      const [layout, error] = await Promise.all([
-        import('pages/MainPage'),
-        import('./ui/RootRouteError'),
-      ]);
-
-      return {
-        Component: layout.default,
-        ErrorBoundary: error.default,
-      };
+      const mod = await import('layouts/RootLayout');
+      return { Component: mod.RootLayout };
     },
     children: [
-      // ... дальше как выше
+      {
+        lazy: async () => {
+          const mod = await import('layouts/SiteLayout');
+          return { Component: mod.SiteLayout };
+        },
+        children: [
+          {
+            index: true,
+            lazy: async () => {
+              const mod = await import('pages/MainPage');
+              return { Component: mod.default };
+            },
+          },
+          {
+            path: Routes.CONSULTATIONS,
+            lazy: async () => {
+              // const mod = await import('pages/ConsultationsPage');
+              return { Component: null };
+            },
+          },
+          {
+            path: Routes.ABOUT_US,
+            lazy: async () => {
+              // const mod = await import('pages/AboutPage');
+              return { Component: null };
+            },
+          },
+        ],
+      },
+      {
+        lazy: async () => {
+          const mod = await import('layouts/AuthLayout');
+          return { Component: mod.AuthLayout };
+        },
+        children: [
+          {
+            path: Routes.LOGIN,
+            lazy: async () => {
+              // const mod = await import('pages/LoginPage');
+              return { Component: null };
+            },
+          },
+          {
+            path: Routes.REGISTER,
+            lazy: async () => {
+              // const mod = await import('@pages/RegisterPage');
+              return { Component: null };
+            },
+          },
+        ],
+      },
+      {
+        path: `${Routes.INVITE}/:token`,
+        lazy: async () => {
+          const mod = await import('pages/InvitePage');
+          return { Component: mod.default };
+        },
+      },
+      {
+        path: '*',
+        lazy: async () => {
+          const mod = await import('pages/NotFoundPage');
+          return { Component: mod.default };
+        },
+      },
     ],
-  },
-  {
-    path: '*',
-    lazy: async () => {
-      const mod = await import('pages/NotFoundPage');
-
-      return { Component: mod.default };
-    },
   },
 ];
