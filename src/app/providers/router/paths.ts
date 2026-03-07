@@ -1,6 +1,7 @@
 export enum Routes {
   ROOT = '/',
   CONSULTATIONS = '/consultations',
+  CONSULTATION_DETAILS = '/consultations/:id',
   ABOUT_US = '/about_us',
   LOGIN = '/login',
   REGISTER = '/register',
@@ -16,7 +17,6 @@ type ExtractParam<S extends string> = S extends `${string}:${infer Param}/${infe
 type ParamsOf<Path extends string> =
   ExtractParam<Path> extends never ? undefined : Record<ExtractParam<Path>, string | number>;
 
-// --- builder, который заменяет ":param" на значение
 function buildPath<P extends Routes>(path: P, params?: ParamsOf<P>): string {
   if (!params) return path;
 
@@ -30,13 +30,13 @@ function buildPath<P extends Routes>(path: P, params?: ParamsOf<P>): string {
 export const paths = {
   root: () => Routes.ROOT,
   consultations: () => Routes.CONSULTATIONS,
+  consultation: (id: string | number) => to(Routes.CONSULTATION_DETAILS, { id }),
   about: () => Routes.ABOUT_US,
   login: () => Routes.LOGIN,
-  register: () => '/register',
+  register: () => Routes.REGISTER,
   invite: (token: string) => `/invite/${encodeURIComponent(token)}`,
 } as const;
 
-// Дополнительно: универсальный helper, если хочется "по ключу"
 export function to<P extends Routes>(path: P, params?: ParamsOf<P>) {
   return buildPath(path, params);
 }
