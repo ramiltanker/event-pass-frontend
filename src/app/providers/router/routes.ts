@@ -25,8 +25,8 @@ export const routes: RouteObject[] = [
           {
             path: Routes.CONSULTATIONS,
             lazy: async () => {
-              // const mod = await import('pages/ConsultationsPage');
-              return { Component: null };
+              const mod = await import('pages/ConsultationsPage');
+              return { Component: mod.default };
             },
           },
           {

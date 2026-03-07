@@ -1,0 +1,1 @@
+export { useGetConsultationsQuery } from './consultationApi';
