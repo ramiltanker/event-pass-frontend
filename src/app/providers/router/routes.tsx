@@ -40,7 +40,8 @@ export const routes: RouteObject[] = [
           {
             path: Routes.ABOUT_US,
             lazy: async () => {
-              return { Component: null };
+              const mod = await import('pages/AboutPage');
+              return { Component: mod.default };
             },
           },
         ],
