@@ -134,7 +134,7 @@ const Header = () => {
               </Link>
             </Box>
 
-            {isAuthenticated && (
+            {!isAuthenticated && (
               <Button
                 component={RouterLink}
                 to={paths.login()}

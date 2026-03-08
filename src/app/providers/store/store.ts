@@ -10,7 +10,8 @@ export const store = configureStore({
     invite: inviteReducer,
     user: userReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware, privateApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
