@@ -11,7 +11,13 @@ export interface User {
   role: UserRole;
 }
 
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+}
+
 export interface UserState {
   user: User | null;
   accessToken: string | null;
+  isInitialized: boolean;
 }

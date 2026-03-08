@@ -1,6 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { Routes } from './paths';
-import { RegisterInviteGuard } from './guards';
+import { GuestOnlyGuard, RegisterInviteGuard } from './guards';
 
 export const routes: RouteObject[] = [
   {
@@ -53,10 +53,16 @@ export const routes: RouteObject[] = [
         },
         children: [
           {
-            path: Routes.LOGIN,
-            lazy: async () => {
-              return { Component: null };
-            },
+            Component: GuestOnlyGuard,
+            children: [
+              {
+                path: Routes.LOGIN,
+                lazy: async () => {
+                  const mod = await import('pages/LoginPage');
+                  return { Component: mod.default };
+                },
+              },
+            ],
           },
           {
             Component: RegisterInviteGuard,

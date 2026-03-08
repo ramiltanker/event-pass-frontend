@@ -17,6 +17,8 @@ import { paths } from 'app/providers/router';
 
 import { Link as RouterLink, NavLink } from 'react-router-dom';
 import headerLogo from 'shared/assets/images/logo/header-logo.png';
+import { useAppSelector } from 'shared/lib/hooks';
+import { selectIsAuthenticated } from 'entities/User';
 
 const navLinkSx = {
   color: 'text.secondary',
@@ -51,6 +53,8 @@ const drawerLinkSx = {
 };
 
 const Header = () => {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleOpenMobileMenu = () => {
@@ -130,22 +134,24 @@ const Header = () => {
               </Link>
             </Box>
 
-            <Button
-              component={RouterLink}
-              to={paths.login()}
-              variant="contained"
-              sx={{
-                display: { xs: 'none', md: 'inline-flex' },
-                borderRadius: 2,
-                px: 2.5,
-                py: 1,
-                textTransform: 'none',
-                fontWeight: 600,
-                flexShrink: 0,
-              }}
-            >
-              Вход для преподавателей
-            </Button>
+            {isAuthenticated && (
+              <Button
+                component={RouterLink}
+                to={paths.login()}
+                variant="contained"
+                sx={{
+                  display: { xs: 'none', md: 'inline-flex' },
+                  borderRadius: 2,
+                  px: 2.5,
+                  py: 1,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  flexShrink: 0,
+                }}
+              >
+                Вход для преподавателей
+              </Button>
+            )}
 
             <Box
               sx={{

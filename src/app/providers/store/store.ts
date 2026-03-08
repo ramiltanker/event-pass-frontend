@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { inviteReducer } from 'entities/Invite';
 import { userReducer } from 'entities/User';
-import { api } from 'shared/api';
+import { api, privateApi } from 'shared/api';
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
+    [privateApi.reducerPath]: privateApi.reducer,
     invite: inviteReducer,
     user: userReducer,
   },

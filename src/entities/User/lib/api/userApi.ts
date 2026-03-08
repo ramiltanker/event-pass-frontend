@@ -1,4 +1,10 @@
-import type { RegisterRequestBody, RegisterResponseBody } from '../../model/types';
+import type {
+  LoginRequestBody,
+  LoginResponseBody,
+  RegisterRequestBody,
+  RegisterResponseBody,
+  User,
+} from '../../model/types';
 import { api } from 'shared/api';
 
 export const userApi = api.injectEndpoints({
@@ -10,7 +16,14 @@ export const userApi = api.injectEndpoints({
         body,
       }),
     }),
+    login: builder.mutation<LoginResponseBody, LoginRequestBody>({
+      query: (body) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useRegisterByInviteMutation } = userApi;
+export const { useRegisterByInviteMutation, useLoginMutation } = userApi;

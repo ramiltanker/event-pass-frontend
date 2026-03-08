@@ -1,25 +1,30 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { RegisterResponseBody, UserState } from '../types';
-import { getAuthDataFromStorage } from '../../lib/utils/userStorage';
-
-const storedAuthData = getAuthDataFromStorage();
+import type { AuthResponse, User, UserState } from '../types';
+import { getAccessTokenFromStorage } from '../../lib/utils';
 
 const initialState: UserState = {
-  user: storedAuthData?.user ?? null,
-  accessToken: storedAuthData?.accessToken ?? null,
+  user: null,
+  accessToken: getAccessTokenFromStorage(),
+  isInitialized: false,
 };
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setAuthData: (state, action: PayloadAction<RegisterResponseBody>) => {
+    setAuthData: (state, action: PayloadAction<AuthResponse>) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
+    },
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
     },
     clearAuthData: (state) => {
       state.user = null;
       state.accessToken = null;
+    },
+    setInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
     },
   },
 });

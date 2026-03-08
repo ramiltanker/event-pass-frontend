@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from 'shared/lib/hooks';
 import type { RegisterFormValues } from '../model/types';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
-import { Box, Container, Grid, Paper, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { FirstNameInput } from './FirstNameInput';
 import { LastNameInput } from './LastNameInput';
 import { MiddleNameInput } from './MiddleNameInput';
@@ -12,7 +12,7 @@ import { EmailInput } from './EmailInput';
 import { PasswordInput } from './PasswordInput';
 import { ConfirmPasswordInput } from './ConfirmPasswordInput';
 import { BottomContent } from './BottomContent';
-import { saveAuthDataToStorage, userActions, useRegisterByInviteMutation } from 'entities/User';
+import { saveAccessTokenToStorage, userActions, useRegisterByInviteMutation } from 'entities/User';
 import { useNavigate } from 'react-router-dom';
 import { Routes } from 'app/providers/router';
 
@@ -60,7 +60,7 @@ const RegisterForm = () => {
       password: password,
     }).unwrap();
 
-    saveAuthDataToStorage(response);
+    saveAccessTokenToStorage(response.accessToken);
     dispatch(userActions.setAuthData(response));
     dispatch(inviteActions.clearInviteData());
 

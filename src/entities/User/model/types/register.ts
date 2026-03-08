@@ -1,4 +1,4 @@
-import type { User } from './types';
+import type { AuthResponse } from './types';
 
 export interface RegisterRequestBody {
   token: string;
@@ -8,7 +8,4 @@ export interface RegisterRequestBody {
   password: string;
 }
 
-export interface RegisterResponseBody {
-  user: User;
-  accessToken: string;
-}
+export type RegisterResponseBody = AuthResponse;
