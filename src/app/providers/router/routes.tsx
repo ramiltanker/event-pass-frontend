@@ -1,6 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { Routes } from './paths';
-import { GuestOnlyGuard, RegisterInviteGuard } from './guards';
+import { GuestOnlyGuard, RegisterInviteGuard, RequireAuth } from './guards';
 
 export const routes: RouteObject[] = [
   {
@@ -43,6 +43,18 @@ export const routes: RouteObject[] = [
               const mod = await import('pages/AboutPage');
               return { Component: mod.default };
             },
+          },
+          {
+            Component: RequireAuth,
+            children: [
+              {
+                path: Routes.TEACHER_DASHBOARD,
+                lazy: async () => {
+                  const mod = await import('pages/TeacherDashboardPage');
+                  return { Component: mod.default };
+                },
+              },
+            ],
           },
         ],
       },

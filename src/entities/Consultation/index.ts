@@ -3,6 +3,10 @@ export {
   useGetConsultationByIdQuery,
   useGetConsultationSlotsQuery,
   useBookSlotMutation,
+  useGetMyConsultationsQuery,
+  useCreateConsultationMutation,
+  useUpdateConsultationMutation,
+  useDeleteConsultationMutation,
 } from './lib/api';
 
 export type {
@@ -12,4 +16,9 @@ export type {
   BookSlotPayload,
   BookSlotRequest,
   BookSlotResponse,
+  CreateConsultationPayload,
+  CreateConsultationResponse,
+  MyConsultationItem,
+  UpdateConsultationRequest,
+  DeleteConsultationResponse,
 } from './model/types';

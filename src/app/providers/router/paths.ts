@@ -6,6 +6,7 @@ export enum Routes {
   LOGIN = '/login',
   REGISTER = '/register',
   INVITE = '/invite',
+  TEACHER_DASHBOARD = '/teacher/dashboard',
   FORGOT_PASSWORD = '/forgot-password',
   RESET_PASSWORD = '/reset-password',
 }
@@ -37,6 +38,7 @@ export const paths = {
   login: () => Routes.LOGIN,
   register: () => Routes.REGISTER,
   invite: (token: string) => `/invite/${encodeURIComponent(token)}`,
+  teacherDashboard: () => Routes.TEACHER_DASHBOARD,
   forgotPassword: () => Routes.FORGOT_PASSWORD,
   resetPassword: () => Routes.RESET_PASSWORD,
 } as const;
