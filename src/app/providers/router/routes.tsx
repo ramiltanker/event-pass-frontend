@@ -62,6 +62,20 @@ export const routes: RouteObject[] = [
                   return { Component: mod.default };
                 },
               },
+              {
+                path: Routes.FORGOT_PASSWORD,
+                lazy: async () => {
+                  const mod = await import('pages/ForgotPasswordPage');
+                  return { Component: mod.default };
+                },
+              },
+              {
+                path: Routes.RESET_PASSWORD,
+                lazy: async () => {
+                  const mod = await import('pages/ResetPasswordPage');
+                  return { Component: mod.default };
+                },
+              },
             ],
           },
           {

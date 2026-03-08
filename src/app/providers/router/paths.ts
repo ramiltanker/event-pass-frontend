@@ -6,6 +6,8 @@ export enum Routes {
   LOGIN = '/login',
   REGISTER = '/register',
   INVITE = '/invite',
+  FORGOT_PASSWORD = '/forgot-password',
+  RESET_PASSWORD = '/reset-password',
 }
 
 type ExtractParam<S extends string> = S extends `${string}:${infer Param}/${infer Rest}`
@@ -35,6 +37,8 @@ export const paths = {
   login: () => Routes.LOGIN,
   register: () => Routes.REGISTER,
   invite: (token: string) => `/invite/${encodeURIComponent(token)}`,
+  forgotPassword: () => Routes.FORGOT_PASSWORD,
+  resetPassword: () => Routes.RESET_PASSWORD,
 } as const;
 
 export function to<P extends Routes>(path: P, params?: ParamsOf<P>) {

@@ -4,7 +4,7 @@ import { userActions, useLoginMutation, saveAccessTokenToStorage } from 'entitie
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-import { Routes } from 'app/providers/router';
+import { paths, Routes } from 'app/providers/router';
 import { useAppDispatch } from 'shared/lib/hooks';
 import type { LoginFormValues } from '../model/types';
 import { EmailInput } from './EmailInput';
@@ -70,7 +70,7 @@ const LoginForm = () => {
             <Box sx={{ textAlign: 'right', mt: -1 }}>
               <Link
                 component={RouterLink}
-                to="#"
+                to={paths.forgotPassword()}
                 underline="hover"
                 sx={{
                   fontSize: 14,
