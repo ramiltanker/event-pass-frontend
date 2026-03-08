@@ -1,8 +1,12 @@
 import type {
+  ForgotPasswordRequestBody,
+  ForgotPasswordResponseBody,
   LoginRequestBody,
   LoginResponseBody,
   RegisterRequestBody,
   RegisterResponseBody,
+  ResetPasswordRequestBody,
+  ResetPasswordResponseBody,
   User,
 } from '../../model/types';
 import { api } from 'shared/api';
@@ -23,7 +27,27 @@ export const userApi = api.injectEndpoints({
         body,
       }),
     }),
+    forgotPassword: builder.mutation<ForgotPasswordResponseBody, ForgotPasswordRequestBody>({
+      query: (body) => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    resetPassword: builder.mutation<ResetPasswordResponseBody, ResetPasswordRequestBody>({
+      query: (body) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useRegisterByInviteMutation, useLoginMutation } = userApi;
+export const {
+  useRegisterByInviteMutation,
+  useLoginMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+} = userApi;
