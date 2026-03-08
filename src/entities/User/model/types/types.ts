@@ -11,6 +11,12 @@ export interface User {
   role: UserRole;
 }
 
+export interface UpdateMePayload {
+  firstName?: string;
+  lastName?: string;
+  middleName?: string | null;
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;
