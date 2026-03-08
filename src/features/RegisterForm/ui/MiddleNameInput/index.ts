@@ -1,0 +1,1 @@
+export { MiddleNameInput } from './MiddleNameInput';
