@@ -1,5 +1,6 @@
-import type { RouteObject } from 'react-router-dom';
+import { Navigate, type RouteObject } from 'react-router-dom';
 import { Routes } from './paths';
+import { RegisterInviteGuard } from './guards';
 
 export const routes: RouteObject[] = [
   {
@@ -58,12 +59,22 @@ export const routes: RouteObject[] = [
             },
           },
           {
-            path: Routes.REGISTER,
-            lazy: async () => {
-              return { Component: null };
-            },
+            Component: RegisterInviteGuard,
+            children: [
+              {
+                path: Routes.REGISTER,
+                lazy: async () => {
+                  const mod = await import('pages/RegisterPage');
+                  return { Component: mod.default };
+                },
+              },
+            ],
           },
         ],
+      },
+      {
+        path: Routes.INVITE,
+        Component: () => <Navigate to={Routes.ROOT} replace />,
       },
       {
         path: `${Routes.INVITE}/:token`,

@@ -2,7 +2,7 @@ export enum Routes {
   ROOT = '/',
   CONSULTATIONS = '/consultations',
   CONSULTATION_DETAILS = '/consultations/:id',
-  ABOUT_US = '/about_us',
+  ABOUT_US = '/about-us',
   LOGIN = '/login',
   REGISTER = '/register',
   INVITE = '/invite',

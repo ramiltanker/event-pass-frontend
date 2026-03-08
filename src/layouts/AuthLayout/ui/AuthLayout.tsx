@@ -11,8 +11,7 @@ const AuthLayout = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            px: { xs: 3, md: 8 },
-            py: 6,
+            padding: '24px',
           }}
         >
           <Box sx={{ width: '100%', maxWidth: 460 }}>
