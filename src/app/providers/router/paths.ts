@@ -6,6 +6,7 @@ export enum Routes {
   LOGIN = '/login',
   REGISTER = '/register',
   INVITE = '/invite',
+  TEACHER_DASHBOARD = '/teacher/dashboard',
 }
 
 type ExtractParam<S extends string> = S extends `${string}:${infer Param}/${infer Rest}`
@@ -35,6 +36,7 @@ export const paths = {
   login: () => Routes.LOGIN,
   register: () => Routes.REGISTER,
   invite: (token: string) => `/invite/${encodeURIComponent(token)}`,
+  teacherDashboard: () => Routes.TEACHER_DASHBOARD,
 } as const;
 
 export function to<P extends Routes>(path: P, params?: ParamsOf<P>) {

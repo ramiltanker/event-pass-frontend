@@ -50,3 +50,40 @@ export interface BookSlotResponse {
   startsAt: string;
   endsAt: string;
 }
+
+export interface CreateConsultationPayload {
+  subject: string;
+  startsAt: string;
+  endsAt: string;
+  slotDurationMinutes: number;
+  meetingLink: string;
+  description?: string;
+}
+
+export interface CreateConsultationResponse {
+  id: number;
+  slotsCreated: number;
+}
+
+export interface MyConsultationItem {
+  id: number;
+  subject: string;
+  description: string | null;
+  meetingLink: string;
+  slotDurationMinutes: number;
+  startsAt: string;
+  endsAt: string;
+  slotsTotal: number;
+  slotsBooked: number;
+  slotsAvailable: number;
+}
+
+export interface UpdateConsultationRequest {
+  id: number;
+  body: CreateConsultationPayload;
+}
+
+export interface DeleteConsultationResponse {
+  ok: boolean;
+  id: number;
+}

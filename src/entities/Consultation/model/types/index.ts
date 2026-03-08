@@ -5,4 +5,9 @@ export type {
   BookSlotPayload,
   BookSlotRequest,
   BookSlotResponse,
+  CreateConsultationPayload,
+  CreateConsultationResponse,
+  MyConsultationItem,
+  UpdateConsultationRequest,
+  DeleteConsultationResponse,
 } from './types';

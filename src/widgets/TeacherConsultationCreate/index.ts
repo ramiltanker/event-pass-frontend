@@ -1,0 +1,1 @@
+export { TeacherConsultationCreate } from './ui/TeacherConsultationCreate';
