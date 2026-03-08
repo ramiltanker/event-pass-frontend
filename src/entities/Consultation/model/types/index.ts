@@ -1,1 +1,8 @@
-export type { ConsultationListItem } from './types';
+export type {
+  ConsultationListItem,
+  ConsultationDetails,
+  ConsultationSlot,
+  BookSlotPayload,
+  BookSlotRequest,
+  BookSlotResponse,
+} from './types';

@@ -9,8 +9,10 @@ import {
 } from '@mui/material';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import { useNavigate } from 'react-router-dom';
 
 import { useGetConsultationsQuery } from 'entities/Consultation';
+import { paths } from 'app/providers/router/paths';
 
 const RED_COLOR = '#941B0C';
 const GREEN_COLOR = '#15803D';
@@ -61,6 +63,7 @@ const getAvatarInitials = (teacherName: string) => {
 };
 
 const ConsultationsPage = () => {
+  const navigate = useNavigate();
   const { data, isLoading, isError } = useGetConsultationsQuery();
 
   if (isLoading) {
@@ -205,6 +208,7 @@ const ConsultationsPage = () => {
                     fullWidth
                     variant="contained"
                     disabled={!isAvailable}
+                    onClick={() => navigate(paths.consultation(consultation.id))}
                     sx={{
                       minHeight: 48,
                       borderRadius: '10px',

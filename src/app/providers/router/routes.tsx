@@ -31,9 +31,15 @@ export const routes: RouteObject[] = [
             },
           },
           {
+            path: Routes.CONSULTATION_DETAILS,
+            lazy: async () => {
+              const mod = await import('pages/ConsultationBookingPage');
+              return { Component: mod.default };
+            },
+          },
+          {
             path: Routes.ABOUT_US,
             lazy: async () => {
-              // const mod = await import('pages/AboutPage');
               return { Component: null };
             },
           },
@@ -48,7 +54,6 @@ export const routes: RouteObject[] = [
           {
             path: Routes.LOGIN,
             lazy: async () => {
-              // const mod = await import('pages/LoginPage');
               return { Component: null };
             },
           },

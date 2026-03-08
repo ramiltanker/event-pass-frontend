@@ -1,1 +1,6 @@
-export { useGetConsultationsQuery } from './consultationApi';
+export {
+  useGetConsultationsQuery,
+  useGetConsultationByIdQuery,
+  useGetConsultationSlotsQuery,
+  useBookSlotMutation,
+} from './consultationApi';
