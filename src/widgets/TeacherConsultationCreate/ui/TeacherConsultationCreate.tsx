@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Divider,
   MenuItem,
   Stack,
   TextField,
@@ -138,6 +137,13 @@ const mapConsultationToFormValues = (
     endTime: toLocalTimeInputValue(consultation.endsAt),
     slotDurationMinutes: consultation.slotDurationMinutes,
   };
+};
+
+const sectionCardStyles = {
+  borderRadius: '16px',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.10)',
+  backgroundColor: '#FFFFFF',
+  border: '1px solid #E9E9E9',
 };
 
 const TeacherConsultationCreate = () => {
@@ -307,152 +313,131 @@ const TeacherConsultationCreate = () => {
 
   return (
     <>
-      <Card
-        elevation={0}
-        sx={{
-          borderRadius: '16px',
-          boxShadow: '0 0 10px rgba(0, 0, 0, 0.12)',
-          backgroundColor: '#FFFFFF',
-        }}
-      >
-        <Box sx={{ p: { xs: 2, sm: 3 } }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-            {isEditMode ? 'Редактирование консультации' : 'Создание консультации'}
-          </Typography>
+      <Stack spacing={3}>
+        <Card elevation={0} sx={sectionCardStyles}>
+          <Box sx={{ p: { xs: 2, sm: 3 } }}>
+            <Typography
+              sx={{
+                fontSize: { xs: '24px', sm: '28px' },
+                fontWeight: 700,
+                lineHeight: 1.2,
+                mb: 3,
+              }}
+            >
+              {isEditMode ? 'Редактирование консультации' : 'Создать консультацию'}
+            </Typography>
 
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Stack spacing={2.5}>
-              {isEditMode ? (
-                <Alert severity="info">
-                  Вы редактируете консультацию. Чтобы выйти из режима редактирования, нажмите
-                  «Отменить».
-                </Alert>
-              ) : null}
-
-              {successMessage ? <Alert severity="success">{successMessage}</Alert> : null}
-
-              {errors.root?.message ? <Alert severity="error">{errors.root.message}</Alert> : null}
-
-              <TextField
-                label="Название предмета"
-                fullWidth
-                {...register('subject', {
-                  required: 'Введите название предмета.',
-                  validate: (value) =>
-                    value.trim().length > 0 || 'Введите название предмета.',
-                })}
-                error={Boolean(errors.subject)}
-                helperText={errors.subject?.message}
-              />
-
-              <TextField
-                label="Описание"
-                fullWidth
-                multiline
-                minRows={4}
-                {...register('description')}
-                error={Boolean(errors.description)}
-                helperText={errors.description?.message}
-              />
-
-              <TextField
-                label="Ссылка на встречу"
-                fullWidth
-                {...register('meetingLink', {
-                  required: 'Введите ссылку на встречу.',
-                  validate: (value) =>
-                    value.trim().length > 0 || 'Введите ссылку на встречу.',
-                })}
-                error={Boolean(errors.meetingLink)}
-                helperText={errors.meetingLink?.message}
-              />
-
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <TextField
-                  label="Дата"
-                  type="date"
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  {...register('date', {
-                    required: 'Выберите дату.',
-                  })}
-                  error={Boolean(errors.date)}
-                  helperText={errors.date?.message}
-                />
-
-                <TextField
-                  label="Время начала"
-                  type="time"
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  {...register('startTime', {
-                    required: 'Укажите время начала.',
-                  })}
-                  error={Boolean(errors.startTime)}
-                  helperText={errors.startTime?.message}
-                />
-
-                <TextField
-                  label="Время окончания"
-                  type="time"
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  {...register('endTime', {
-                    required: 'Укажите время окончания.',
-                  })}
-                  error={Boolean(errors.endTime)}
-                  helperText={errors.endTime?.message}
-                />
-              </Stack>
-
-              <TextField
-                select
-                label="Длительность слота"
-                fullWidth
-                defaultValue={30}
-                {...register('slotDurationMinutes', {
-                  required: 'Выберите длительность слота.',
-                  valueAsNumber: true,
-                })}
-                error={Boolean(errors.slotDurationMinutes)}
-                helperText={errors.slotDurationMinutes?.message}
-              >
-                {slotDurationOptions.map((minutes) => (
-                  <MenuItem key={minutes} value={minutes}>
-                    {minutes} мин
-                  </MenuItem>
-                ))}
-              </TextField>
-
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={isSubmitting || (isEditMode && !isDirty)}
-                  sx={{
-                    minHeight: 48,
-                    px: 3,
-                    borderRadius: '10px',
-                    textTransform: 'none',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                  }}
-                >
-                  {isSubmitting
-                    ? isEditMode
-                      ? 'Сохранение...'
-                      : 'Создание...'
-                    : isEditMode
-                      ? 'Сохранить'
-                      : 'Создать консультацию'}
-                </Button>
-
+            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+              <Stack spacing={2.5}>
                 {isEditMode ? (
+                  <Alert severity="info">
+                    Вы редактируете консультацию. Чтобы выйти из режима редактирования, нажмите
+                    «Отменить».
+                  </Alert>
+                ) : null}
+
+                {successMessage ? <Alert severity="success">{successMessage}</Alert> : null}
+
+                {errors.root?.message ? <Alert severity="error">{errors.root.message}</Alert> : null}
+
+                <TextField
+                  label="Название предмета"
+                  fullWidth
+                  {...register('subject', {
+                    required: 'Введите название предмета.',
+                    validate: (value) =>
+                      value.trim().length > 0 || 'Введите название предмета.',
+                  })}
+                  error={Boolean(errors.subject)}
+                  helperText={errors.subject?.message}
+                />
+
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    label="Дата проведения"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    {...register('date', {
+                      required: 'Выберите дату.',
+                    })}
+                    error={Boolean(errors.date)}
+                    helperText={errors.date?.message}
+                  />
+
+                  <TextField
+                    select
+                    label="Интервал приёма"
+                    fullWidth
+                    defaultValue={30}
+                    {...register('slotDurationMinutes', {
+                      required: 'Выберите длительность слота.',
+                      valueAsNumber: true,
+                    })}
+                    error={Boolean(errors.slotDurationMinutes)}
+                    helperText={errors.slotDurationMinutes?.message}
+                  >
+                    {slotDurationOptions.map((minutes) => (
+                      <MenuItem key={minutes} value={minutes}>
+                        {minutes} минут
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Stack>
+
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <TextField
+                    label="Время начала"
+                    type="time"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    {...register('startTime', {
+                      required: 'Укажите время начала.',
+                    })}
+                    error={Boolean(errors.startTime)}
+                    helperText={errors.startTime?.message}
+                  />
+
+                  <TextField
+                    label="Время окончания"
+                    type="time"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    {...register('endTime', {
+                      required: 'Укажите время окончания.',
+                    })}
+                    error={Boolean(errors.endTime)}
+                    helperText={errors.endTime?.message}
+                  />
+                </Stack>
+
+                <TextField
+                  label="Ссылка на консультацию"
+                  fullWidth
+                  {...register('meetingLink', {
+                    required: 'Введите ссылку на встречу.',
+                    validate: (value) =>
+                      value.trim().length > 0 || 'Введите ссылку на встречу.',
+                  })}
+                  error={Boolean(errors.meetingLink)}
+                  helperText={errors.meetingLink?.message}
+                />
+
+                <TextField
+                  label="Описание консультации"
+                  fullWidth
+                  multiline
+                  minRows={4}
+                  {...register('description')}
+                  error={Boolean(errors.description)}
+                  helperText={errors.description?.message}
+                />
+
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                   <Button
-                    type="button"
-                    variant="outlined"
-                    disabled={isSubmitting}
-                    onClick={handleCancelEdit}
+                    type="submit"
+                    variant="contained"
+                    disabled={isSubmitting || (isEditMode && !isDirty)}
                     sx={{
                       minHeight: 48,
                       px: 3,
@@ -460,163 +445,203 @@ const TeacherConsultationCreate = () => {
                       textTransform: 'none',
                       fontSize: '16px',
                       fontWeight: 600,
+                      backgroundColor: '#A61D0A',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        backgroundColor: '#8F1708',
+                        boxShadow: 'none',
+                      },
                     }}
                   >
-                    Отменить
+                    {isSubmitting
+                      ? isEditMode
+                        ? 'Сохранение...'
+                        : 'Создание...'
+                      : isEditMode
+                        ? 'Сохранить'
+                        : 'Создать консультацию'}
                   </Button>
-                ) : null}
+
+                  {isEditMode ? (
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      disabled={isSubmitting}
+                      onClick={handleCancelEdit}
+                      sx={{
+                        minHeight: 48,
+                        px: 3,
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Отменить
+                    </Button>
+                  ) : null}
+                </Stack>
               </Stack>
-            </Stack>
+            </Box>
           </Box>
+        </Card>
 
-          <Divider sx={{ my: 4 }} />
-
-          <Stack spacing={2.5}>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              Мои консультации
+        <Card elevation={0} sx={sectionCardStyles}>
+          <Box sx={{ p: { xs: 2, sm: 3 } }}>
+            <Typography
+              sx={{
+                fontSize: { xs: '22px', sm: '24px' },
+                fontWeight: 700,
+                lineHeight: 1.2,
+                mb: 3,
+              }}
+            >
+              Созданные консультации
             </Typography>
 
-            {isMyConsultationsLoading ? (
-              <Typography color="text.secondary">Загрузка консультаций...</Typography>
-            ) : null}
+            <Stack spacing={2.5}>
+              {isMyConsultationsLoading ? (
+                <Typography color="text.secondary">Загрузка консультаций...</Typography>
+              ) : null}
 
-            {isMyConsultationsError ? (
-              <Alert severity="error">Не удалось загрузить ваши консультации.</Alert>
-            ) : null}
+              {isMyConsultationsError ? (
+                <Alert severity="error">Не удалось загрузить ваши консультации.</Alert>
+              ) : null}
 
-            {!isMyConsultationsLoading &&
-            !isMyConsultationsError &&
-            sortedConsultations.length === 0 ? (
-              <Typography color="text.secondary">
-                У вас пока нет созданных консультаций.
-              </Typography>
-            ) : null}
+              {!isMyConsultationsLoading &&
+              !isMyConsultationsError &&
+              sortedConsultations.length === 0 ? (
+                <Typography color="text.secondary">
+                  У вас пока нет созданных консультаций.
+                </Typography>
+              ) : null}
 
-            {sortedConsultations.map((consultation) => {
-              const canManage = canManageConsultation(consultation);
+              {sortedConsultations.map((consultation) => {
+                const canManage = canManageConsultation(consultation);
 
-              return (
-                <Card
-                  key={consultation.id}
-                  elevation={0}
-                  sx={{
-                    borderRadius: '14px',
-                    border: '1px solid #E5E7EB',
-                    boxShadow: 'none',
-                    backgroundColor: '#FFFFFF',
-                  }}
-                >
-                  <Box sx={{ p: { xs: 2, sm: 3 } }}>
-                    <Stack spacing={2}>
-                      <Stack
-                        direction={{ xs: 'column', md: 'row' }}
-                        spacing={2}
-                        justifyContent="space-between"
-                        alignItems={{ xs: 'flex-start', md: 'flex-start' }}
-                      >
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Typography
-                            sx={{
-                              fontSize: { xs: '20px', sm: '22px' },
-                              fontWeight: 700,
-                              lineHeight: 1.2,
-                              wordBreak: 'break-word',
-                              overflowWrap: 'anywhere',
-                            }}
-                          >
-                            {consultation.subject}
-                          </Typography>
-
-                          {consultation.description ? (
+                return (
+                  <Card
+                    key={consultation.id}
+                    elevation={0}
+                    sx={{
+                      borderRadius: '14px',
+                      border: '1px solid #E5E7EB',
+                      boxShadow: 'none',
+                      backgroundColor: '#FFFFFF',
+                    }}
+                  >
+                    <Box sx={{ p: { xs: 2, sm: 2.5 } }}>
+                      <Stack spacing={2}>
+                        <Stack
+                          direction={{ xs: 'column', md: 'row' }}
+                          spacing={2}
+                          justifyContent="space-between"
+                          alignItems={{ xs: 'flex-start', md: 'flex-start' }}
+                        >
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
                             <Typography
                               sx={{
-                                mt: 1,
-                                color: 'text.secondary',
+                                fontSize: { xs: '18px', sm: '20px' },
+                                fontWeight: 700,
+                                lineHeight: 1.2,
                                 wordBreak: 'break-word',
                                 overflowWrap: 'anywhere',
                               }}
                             >
-                              {consultation.description}
+                              {consultation.subject}
                             </Typography>
-                          ) : null}
-                        </Box>
 
-                        <Box>
-                          <Typography sx={{ fontWeight: 600 }}>
-                            Свободно: {consultation.slotsAvailable}/{consultation.slotsTotal}
+                            {consultation.description ? (
+                              <Typography
+                                sx={{
+                                  mt: 1,
+                                  color: 'text.secondary',
+                                  wordBreak: 'break-word',
+                                  overflowWrap: 'anywhere',
+                                }}
+                              >
+                                {consultation.description}
+                              </Typography>
+                            ) : null}
+                          </Box>
+
+                          <Box>
+                            <Typography sx={{ fontWeight: 600 }}>
+                              Свободно: {consultation.slotsAvailable}/{consultation.slotsTotal}
+                            </Typography>
+                            <Typography sx={{ color: 'text.secondary', mt: 0.5 }}>
+                              Забронировано: {consultation.slotsBooked}
+                            </Typography>
+                          </Box>
+                        </Stack>
+
+                        <Stack spacing={0.75}>
+                          <Typography color="text.secondary">
+                            Дата: {formatDate(consultation.startsAt)}
                           </Typography>
-                          <Typography sx={{ color: 'text.secondary', mt: 0.5 }}>
-                            Забронировано: {consultation.slotsBooked}
+
+                          <Typography color="text.secondary">
+                            Время: {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                           </Typography>
-                        </Box>
+
+                          <Typography color="text.secondary">
+                            Длительность слота: {consultation.slotDurationMinutes} мин
+                          </Typography>
+
+                          <Typography
+                            color="text.secondary"
+                            sx={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                          >
+                            Ссылка: {consultation.meetingLink}
+                          </Typography>
+                        </Stack>
+
+                        {!canManage ? (
+                          <Alert severity="warning">
+                            Эту консультацию нельзя редактировать или удалить. Причина: она уже
+                            началась или в ней есть забронированные слоты.
+                          </Alert>
+                        ) : null}
+
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                          <Button
+                            variant="outlined"
+                            disabled={!canManage || isSubmitting || isDeleting}
+                            onClick={() => handleStartEdit(consultation)}
+                            sx={{
+                              minHeight: 44,
+                              borderRadius: '10px',
+                              textTransform: 'none',
+                              fontWeight: 600,
+                            }}
+                          >
+                            Редактировать
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            color="error"
+                            disabled={!canManage || isSubmitting || isDeleting}
+                            onClick={() => setConsultationToDelete(consultation)}
+                            sx={{
+                              minHeight: 44,
+                              borderRadius: '10px',
+                              textTransform: 'none',
+                              fontWeight: 600,
+                            }}
+                          >
+                            Удалить
+                          </Button>
+                        </Stack>
                       </Stack>
-
-                      <Stack spacing={0.75}>
-                        <Typography color="text.secondary">
-                          Дата: {formatDate(consultation.startsAt)}
-                        </Typography>
-
-                        <Typography color="text.secondary">
-                          Время: {formatTimeRange(consultation.startsAt, consultation.endsAt)}
-                        </Typography>
-
-                        <Typography color="text.secondary">
-                          Длительность слота: {consultation.slotDurationMinutes} мин
-                        </Typography>
-
-                        <Typography
-                          color="text.secondary"
-                          sx={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-                        >
-                          Ссылка: {consultation.meetingLink}
-                        </Typography>
-                      </Stack>
-
-                      {!canManage ? (
-                        <Alert severity="warning">
-                          Эту консультацию нельзя редактировать или удалить. Причина: она уже
-                          началась или в ней есть забронированные слоты.
-                        </Alert>
-                      ) : null}
-
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                        <Button
-                          variant="outlined"
-                          disabled={!canManage || isSubmitting || isDeleting}
-                          onClick={() => handleStartEdit(consultation)}
-                          sx={{
-                            minHeight: 44,
-                            borderRadius: '10px',
-                            textTransform: 'none',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Редактировать
-                        </Button>
-
-                        <Button
-                          variant="contained"
-                          color="error"
-                          disabled={!canManage || isSubmitting || isDeleting}
-                          onClick={() => setConsultationToDelete(consultation)}
-                          sx={{
-                            minHeight: 44,
-                            borderRadius: '10px',
-                            textTransform: 'none',
-                            fontWeight: 600,
-                          }}
-                        >
-                          Удалить
-                        </Button>
-                      </Stack>
-                    </Stack>
-                  </Box>
-                </Card>
-              );
-            })}
-          </Stack>
-        </Box>
-      </Card>
+                    </Box>
+                  </Card>
+                );
+              })}
+            </Stack>
+          </Box>
+        </Card>
+      </Stack>
 
       <Dialog
         open={Boolean(consultationToDelete)}

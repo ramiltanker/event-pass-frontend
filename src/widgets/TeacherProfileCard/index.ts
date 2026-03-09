@@ -1,0 +1,1 @@
+export { TeacherProfileCard } from './ui/TeacherProfileCard';

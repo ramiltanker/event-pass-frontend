@@ -1,4 +1,4 @@
-import type { User } from '../../model/types';
+import type { UpdateMePayload, User } from '../../model/types';
 import { privateApi } from 'shared/api';
 
 export const privateUserApi = privateApi.injectEndpoints({
@@ -9,7 +9,14 @@ export const privateUserApi = privateApi.injectEndpoints({
         method: 'GET',
       }),
     }),
+    updateMe: builder.mutation<User, UpdateMePayload>({
+      query: (body) => ({
+        url: '/auth/me',
+        method: 'PATCH',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useGetMeQuery, useLazyGetMeQuery } = privateUserApi;
+export const { useGetMeQuery, useLazyGetMeQuery, useUpdateMeMutation } = privateUserApi;
