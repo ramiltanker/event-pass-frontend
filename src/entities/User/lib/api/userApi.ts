@@ -7,7 +7,6 @@ import type {
   RegisterResponseBody,
   ResetPasswordRequestBody,
   ResetPasswordResponseBody,
-  User,
 } from '../../model/types';
 import { api } from 'shared/api';
 

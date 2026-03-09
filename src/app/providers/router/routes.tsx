@@ -1,6 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { Routes } from './paths';
 import { GuestOnlyGuard, RegisterInviteGuard, RequireAuth } from './guards';
+import RequireAdmin from './guards/RequireAdmin';
 
 export const routes: RouteObject[] = [
   {
@@ -114,6 +115,18 @@ export const routes: RouteObject[] = [
           const mod = await import('pages/InvitePage');
           return { Component: mod.default };
         },
+      },
+      {
+        Component: RequireAdmin,
+        children: [
+          {
+            path: Routes.ADMIN_INVITES,
+            lazy: async () => {
+              const mod = await import('pages/AdminInvitesPage');
+              return { Component: mod.default };
+            },
+          },
+        ],
       },
       {
         path: '*',

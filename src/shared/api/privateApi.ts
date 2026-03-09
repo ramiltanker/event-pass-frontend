@@ -5,6 +5,7 @@ const privateApi = createApi({
   reducerPath: 'privateUserApi',
   baseQuery: baseQueryWithAuth,
   endpoints: () => ({}),
+  tagTypes: ['Invites'],
 });
 
 export { privateApi };

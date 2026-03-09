@@ -1,4 +1,4 @@
-import type { UpdateMePayload, User } from '../../model/types';
+import type { Invite, InviteStatusFilter, UpdateMePayload, User } from '../../model/types';
 import { privateApi } from 'shared/api';
 
 export const privateUserApi = privateApi.injectEndpoints({
@@ -16,7 +16,21 @@ export const privateUserApi = privateApi.injectEndpoints({
         body,
       }),
     }),
+    getInvites: builder.query<Invite[], InviteStatusFilter | void>({
+      query: (status = 'all') => ({
+        url: '/auth/invites',
+        method: 'GET',
+        params: { status },
+      }),
+      providesTags: ['Invites'],
+    }),
   }),
 });
 
-export const { useGetMeQuery, useLazyGetMeQuery, useUpdateMeMutation } = privateUserApi;
+export const {
+  useGetMeQuery,
+  useLazyGetMeQuery,
+  useGetInvitesQuery,
+  useLazyGetInvitesQuery,
+  useUpdateMeMutation,
+} = privateUserApi;
