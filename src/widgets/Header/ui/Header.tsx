@@ -21,12 +21,13 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import { Link as RouterLink, NavLink, useLocation, useNavigate } from 'react-router-dom';
 
-import { paths } from 'app/providers/router';
+import { paths, Routes } from 'app/providers/router';
 import {
   clearAuthStorage,
   selectIsAuthenticated,
   selectUser,
   userActions,
+  UserRole,
 } from 'entities/User';
 import { useAppDispatch, useAppSelector } from 'shared/lib/hooks';
 import headerLogo from 'shared/assets/images/logo/header-logo.png';
@@ -324,6 +325,26 @@ const Header = () => {
                       >
                         Перейти в личный кабинет
                       </Button>
+
+                      {user?.role === UserRole.ADMIN && (
+                        <Button
+                          component={RouterLink}
+                          to={Routes.ADMIN_INVITES}
+                          fullWidth
+                          sx={{
+                            justifyContent: 'flex-start',
+                            px: 2,
+                            py: 1.5,
+                            borderRadius: 0,
+                            textTransform: 'none',
+                            color: '#111827',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Админка
+                        </Button>
+                      )}
 
                       <Button
                         onClick={handleLogout}

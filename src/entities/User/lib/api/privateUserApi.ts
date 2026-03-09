@@ -1,4 +1,11 @@
-import type { Invite, InviteStatusFilter, UpdateMePayload, User } from '../../model/types';
+import type {
+  CreateInviteRequestBody,
+  CreateInviteResponseBody,
+  Invite,
+  InviteStatusFilter,
+  UpdateMePayload,
+  User,
+} from '../../model/types';
 import { privateApi } from 'shared/api';
 
 export const privateUserApi = privateApi.injectEndpoints({
@@ -24,6 +31,21 @@ export const privateUserApi = privateApi.injectEndpoints({
       }),
       providesTags: ['Invites'],
     }),
+    createInvite: builder.mutation<CreateInviteResponseBody, CreateInviteRequestBody>({
+      query: (body) => ({
+        url: '/auth/invites',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Invites'],
+    }),
+    revokeInvite: builder.mutation<{ success: true }, string>({
+      query: (id) => ({
+        url: `/auth/invites/${id}/revoke`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Invites'],
+    }),
   }),
 });
 
@@ -33,4 +55,6 @@ export const {
   useGetInvitesQuery,
   useLazyGetInvitesQuery,
   useUpdateMeMutation,
+  useCreateInviteMutation,
+  useRevokeInviteMutation,
 } = privateUserApi;

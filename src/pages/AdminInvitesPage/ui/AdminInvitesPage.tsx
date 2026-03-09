@@ -3,7 +3,7 @@ import { Invites } from 'widgets/Invites';
 
 const AdminInvitesPage = () => {
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ padding: '24px' }}>
       <Stack spacing={2}>
         <Typography variant="h4">Приглашения</Typography>
         <Invites />
