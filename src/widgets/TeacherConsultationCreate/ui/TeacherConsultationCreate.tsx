@@ -258,13 +258,6 @@ const TeacherConsultationCreate = () => {
       return;
     }
 
-    if (new Date(startsAt) <= new Date()) {
-      setError('root', {
-        type: 'manual',
-        message: 'Консультация должна начинаться в будущем.',
-      });
-      return;
-    }
 
     if (!values.withoutIntervals && !Number.isInteger(Number(values.slotDurationMinutes))) {
       setError('root', {
@@ -366,9 +359,7 @@ const TeacherConsultationCreate = () => {
     }
   };
 
-  const canManageConsultation = (consultation: MyConsultationItem) => {
-    return new Date(consultation.startsAt) > new Date() && consultation.slotsBooked === 0;
-  };
+
 
   return (
     <>
@@ -613,7 +604,6 @@ const TeacherConsultationCreate = () => {
               ) : null}
 
               {sortedConsultations.map((consultation) => {
-                const canManage = canManageConsultation(consultation);
 
                 return (
                   <Card
@@ -706,18 +696,11 @@ const TeacherConsultationCreate = () => {
                           )}
                         </Stack>
 
-                        {!canManage ? (
-                          <Alert severity="warning">
-                            Эту консультацию нельзя редактировать или удалить. Причина: она уже
-                            началась или в ней есть записи.
-                          </Alert>
-                        ) : null}
-
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                           <Button
-                            variant="outlined"
-                            disabled={!canManage || isSubmitting || isDeleting}
-                            onClick={() => handleStartEdit(consultation)}
+  variant="outlined"
+  disabled={isSubmitting || isDeleting}
+  onClick={() => handleStartEdit(consultation)}
                             sx={{
                               minHeight: 44,
                               borderRadius: '10px',
@@ -729,10 +712,10 @@ const TeacherConsultationCreate = () => {
                           </Button>
 
                           <Button
-                            variant="contained"
-                            color="error"
-                            disabled={!canManage || isSubmitting || isDeleting}
-                            onClick={() => setConsultationToDelete(consultation)}
+  variant="contained"
+  color="error"
+  disabled={isSubmitting || isDeleting}
+  onClick={() => setConsultationToDelete(consultation)}
                             sx={{
                               minHeight: 44,
                               borderRadius: '10px',
