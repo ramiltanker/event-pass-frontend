@@ -79,6 +79,10 @@ const getAvailabilityText = (
   return `Свободно: ${slotsAvailable}/${slotsTotal}`;
 };
 
+const getFormatLabel = (isOnline: boolean) => {
+  return isOnline ? 'Онлайн' : 'Очно';
+};
+
 const ConsultationsPage = () => {
   const navigate = useNavigate();
   const { data, isLoading, isError } = useGetConsultationsQuery();
@@ -282,6 +286,30 @@ const ConsultationsPage = () => {
                             {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                           </Typography>
                         </Stack>
+
+                        <Typography
+                          sx={{
+                            color: TEXT_SECONDARY,
+                            fontSize: '16px',
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                          }}
+                        >
+                          Формат: {getFormatLabel(consultation.isOnline)}
+                        </Typography>
+
+                        {!consultation.isOnline ? (
+                          <Typography
+                            sx={{
+                              color: TEXT_SECONDARY,
+                              fontSize: '16px',
+                              lineHeight: 1.2,
+                              wordBreak: 'break-word',
+                            }}
+                          >
+                            Аудитория: {consultation.audienceNumber || 'Не указана'}
+                          </Typography>
+                        ) : null}
 
                         {consultation.withoutIntervals ? (
                           <Typography

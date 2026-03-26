@@ -29,6 +29,7 @@ import {
   useGetConsultationByIdQuery,
   useGetConsultationSlotsQuery,
   type BookSlotPayload,
+  type ConsultationDetails,
 } from 'entities/Consultation';
 import { paths } from 'app/providers/router/paths';
 
@@ -112,6 +113,31 @@ const getAvailabilityText = (
   return `Свободно: ${slotsAvailable}/${slotsTotal}`;
 };
 
+const getFormatLabel = (isOnline: boolean) => {
+  return isOnline ? 'Онлайн' : 'Очно';
+};
+
+const getBookingSuccessMessage = (
+  consultation: ConsultationDetails,
+  startsAt: string,
+  endsAt: string,
+) => {
+  const baseMessage = `Вы успешно записаны на консультацию "${consultation.subject}" на время ${formatTimeRange(
+    startsAt,
+    endsAt,
+  )}.`;
+
+  if (consultation.isOnline) {
+    return `${baseMessage} Ссылка на консультацию отправлена на вашу почту.`;
+  }
+
+  if (consultation.audienceNumber?.trim()) {
+    return `${baseMessage} Аудитория ${consultation.audienceNumber} указана на странице и отправлена на вашу почту.`;
+  }
+
+  return `${baseMessage} Номер аудитории отправлен на вашу почту.`;
+};
+
 const ConsultationBookingPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -193,6 +219,10 @@ const ConsultationBookingPage = () => {
   }, [slots]);
 
   const onSubmit = handleSubmit(async (values) => {
+    if (!consultation) {
+      return;
+    }
+
     setResultModal((prev) => ({
       ...prev,
       open: false,
@@ -218,10 +248,7 @@ const ConsultationBookingPage = () => {
         openResultModal(
           'success',
           'Запись подтверждена',
-          `Вы успешно записаны на консультацию "${result.subject}" на время ${formatTimeRange(
-            result.startsAt,
-            result.endsAt,
-          )}. Ссылка на консультацию отправлена на вашу почту.`,
+          getBookingSuccessMessage(consultation, result.startsAt, result.endsAt),
         );
 
         await refetchConsultation();
@@ -246,10 +273,7 @@ const ConsultationBookingPage = () => {
       openResultModal(
         'success',
         'Запись подтверждена',
-        `Вы успешно записаны на консультацию "${result.subject}" на время ${formatTimeRange(
-          result.startsAt,
-          result.endsAt,
-        )}. Ссылка на консультацию отправлена на вашу почту.`,
+        getBookingSuccessMessage(consultation, result.startsAt, result.endsAt),
       );
 
       await Promise.all([refetchConsultation(), refetchSlots()]);
@@ -457,6 +481,28 @@ const ConsultationBookingPage = () => {
                     {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                   </Typography>
                 </Stack>
+
+                <Typography
+                  sx={{
+                    color: TEXT_SECONDARY,
+                    fontSize: '16px',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Формат: {getFormatLabel(consultation.isOnline)}
+                </Typography>
+
+                {!consultation.isOnline ? (
+                  <Typography
+                    sx={{
+                      color: TEXT_SECONDARY,
+                      fontSize: '16px',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Аудитория: {consultation.audienceNumber || 'Не указана'}
+                  </Typography>
+                ) : null}
 
                 {consultation.withoutIntervals ? (
                   <Typography
@@ -672,8 +718,8 @@ const ConsultationBookingPage = () => {
                         }}
                       >
                         {availableSlots.length === 0 ? (
-                          <MenuItem disabled value="">
-                            Свободных интервалов нет
+                          <MenuItem value="" disabled>
+                            Свободного времени нет
                           </MenuItem>
                         ) : (
                           availableSlots.map((slot) => (
@@ -690,7 +736,7 @@ const ConsultationBookingPage = () => {
                     <Button
                       type="submit"
                       variant="contained"
-                      disabled={availableSlots.length === 0 || isBooking}
+                      disabled={isBooking || availableSlots.length === 0}
                       sx={{
                         minHeight: 56,
                         borderRadius: '10px',
@@ -716,40 +762,15 @@ const ConsultationBookingPage = () => {
       </Stack>
 
       <Dialog open={resultModal.open} onClose={closeResultModal} fullWidth maxWidth="xs">
-        <DialogTitle
-          sx={{
-            color: resultModal.type === 'success' ? '#15803D' : RED_COLOR,
-            fontWeight: 700,
-            fontSize: '24px',
-          }}
-        >
-          {resultModal.title}
-        </DialogTitle>
+        <DialogTitle>{resultModal.title}</DialogTitle>
 
         <DialogContent>
-          <Typography
-            sx={{
-              color: TEXT_SECONDARY,
-              lineHeight: 1.6,
-            }}
-          >
-            {resultModal.message}
-          </Typography>
+          <Typography>{resultModal.message}</Typography>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={closeResultModal}
-            variant="contained"
-            sx={{
-              textTransform: 'none',
-              backgroundColor: RED_COLOR,
-              '&:hover': {
-                backgroundColor: RED_COLOR,
-              },
-            }}
-          >
-            Понятно
+          <Button onClick={closeResultModal} sx={{ textTransform: 'none' }}>
+            Закрыть
           </Button>
         </DialogActions>
       </Dialog>

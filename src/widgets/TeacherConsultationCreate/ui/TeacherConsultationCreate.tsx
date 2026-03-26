@@ -26,10 +26,14 @@ import {
   useUpdateConsultationMutation,
 } from 'entities/Consultation';
 
+type TeacherConsultationFormat = 'ONLINE' | 'OFFLINE';
+
 type TeacherConsultationCreateFormValues = {
   subject: string;
   description: string;
+  format: TeacherConsultationFormat;
   meetingLink: string;
+  audienceNumber: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -40,7 +44,9 @@ type TeacherConsultationCreateFormValues = {
 const defaultValues: TeacherConsultationCreateFormValues = {
   subject: '',
   description: '',
+  format: 'ONLINE',
   meetingLink: '',
+  audienceNumber: '',
   date: '',
   startTime: '',
   endTime: '',
@@ -129,13 +135,19 @@ const getApiErrorMessage = (error: unknown) => {
   return null;
 };
 
+const getFormatLabel = (isOnline: boolean) => {
+  return isOnline ? 'Онлайн' : 'Очно';
+};
+
 const mapConsultationToFormValues = (
   consultation: MyConsultationItem,
 ): TeacherConsultationCreateFormValues => {
   return {
     subject: consultation.subject,
     description: consultation.description ?? '',
-    meetingLink: consultation.meetingLink,
+    format: consultation.isOnline ? 'ONLINE' : 'OFFLINE',
+    meetingLink: consultation.meetingLink ?? '',
+    audienceNumber: consultation.audienceNumber ?? '',
     date: toLocalDateInputValue(consultation.startsAt),
     startTime: toLocalTimeInputValue(consultation.startsAt),
     endTime: toLocalTimeInputValue(consultation.endsAt),
@@ -194,6 +206,8 @@ const TeacherConsultationCreate = () => {
   } = form;
 
   const withoutIntervals = watch('withoutIntervals');
+  const format = watch('format');
+  const isOnline = format === 'ONLINE';
 
   const sortedConsultations = useMemo(() => {
     if (!myConsultations) return [];
@@ -260,10 +274,28 @@ const TeacherConsultationCreate = () => {
       return;
     }
 
+    if (values.format === 'ONLINE' && !values.meetingLink.trim()) {
+      setError('root', {
+        type: 'manual',
+        message: 'Введите ссылку на консультацию.',
+      });
+      return;
+    }
+
+    if (values.format === 'OFFLINE' && !values.audienceNumber.trim()) {
+      setError('root', {
+        type: 'manual',
+        message: 'Введите номер аудитории.',
+      });
+      return;
+    }
+
     const payload = {
       subject: values.subject.trim(),
       description: values.description.trim() || undefined,
-      meetingLink: values.meetingLink.trim(),
+      isOnline: values.format === 'ONLINE',
+      meetingLink: values.format === 'ONLINE' ? values.meetingLink.trim() : undefined,
+      audienceNumber: values.format === 'OFFLINE' ? values.audienceNumber.trim() : undefined,
       startsAt,
       endsAt,
       withoutIntervals: values.withoutIntervals,
@@ -375,18 +407,47 @@ const TeacherConsultationCreate = () => {
                 />
 
                 <TextField
-                  label="Ссылка на консультацию"
+                  label="Формат консультации"
+                  select
                   fullWidth
-                  {...register('meetingLink', {
-                    required: 'Введите ссылку на консультацию',
-                    maxLength: {
-                      value: 500,
-                      message: 'Максимум 500 символов',
-                    },
+                  defaultValue={defaultValues.format}
+                  {...register('format', {
+                    required: 'Выберите формат консультации',
                   })}
-                  error={Boolean(errors.meetingLink)}
-                  helperText={errors.meetingLink?.message}
-                />
+                  error={Boolean(errors.format)}
+                  helperText={errors.format?.message}
+                >
+                  <MenuItem value="ONLINE">Онлайн</MenuItem>
+                  <MenuItem value="OFFLINE">Очно</MenuItem>
+                </TextField>
+
+                {isOnline ? (
+                  <TextField
+                    label="Ссылка на консультацию"
+                    fullWidth
+                    {...register('meetingLink', {
+                      maxLength: {
+                        value: 500,
+                        message: 'Максимум 500 символов',
+                      },
+                    })}
+                    error={Boolean(errors.meetingLink)}
+                    helperText={errors.meetingLink?.message}
+                  />
+                ) : (
+                  <TextField
+                    label="Номер аудитории"
+                    fullWidth
+                    {...register('audienceNumber', {
+                      maxLength: {
+                        value: 120,
+                        message: 'Максимум 120 символов',
+                      },
+                    })}
+                    error={Boolean(errors.audienceNumber)}
+                    helperText={errors.audienceNumber?.message}
+                  />
+                )}
 
                 <FormControlLabel
                   control={<Checkbox {...register('withoutIntervals')} checked={withoutIntervals} />}
@@ -619,6 +680,10 @@ const TeacherConsultationCreate = () => {
                             Время: {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                           </Typography>
 
+                          <Typography color="text.secondary">
+                            Формат: {getFormatLabel(consultation.isOnline)}
+                          </Typography>
+
                           {!consultation.withoutIntervals ? (
                             <Typography color="text.secondary">
                               Длительность слота: {consultation.slotDurationMinutes} мин
@@ -627,12 +692,18 @@ const TeacherConsultationCreate = () => {
                             <Typography color="text.secondary">Формат записи: без интервалов</Typography>
                           )}
 
-                          <Typography
-                            color="text.secondary"
-                            sx={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-                          >
-                            Ссылка: {consultation.meetingLink}
-                          </Typography>
+                          {consultation.isOnline ? (
+                            <Typography
+                              color="text.secondary"
+                              sx={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                            >
+                              Ссылка: {consultation.meetingLink || 'Не указана'}
+                            </Typography>
+                          ) : (
+                            <Typography color="text.secondary">
+                              Аудитория: {consultation.audienceNumber || 'Не указана'}
+                            </Typography>
+                          )}
                         </Stack>
 
                         {!canManage ? (

@@ -4,6 +4,8 @@ export interface ConsultationListItem {
   startsAt: string;
   endsAt: string;
   teacherName: string;
+  isOnline: boolean;
+  audienceNumber: string | null;
   withoutIntervals: boolean;
   slotsTotal: number | null;
   slotsBooked: number;
@@ -17,6 +19,8 @@ export interface ConsultationDetails {
   startsAt: string;
   endsAt: string;
   teacherName: string;
+  isOnline: boolean;
+  audienceNumber: string | null;
   withoutIntervals: boolean;
   slotsTotal: number | null;
   slotsBooked: number;
@@ -56,15 +60,19 @@ export interface BookSlotResponse {
   subject: string;
   startsAt: string;
   endsAt: string;
+  isOnline: boolean;
+  audienceNumber: string | null;
 }
 
 export interface CreateConsultationPayload {
   subject: string;
   startsAt: string;
   endsAt: string;
+  isOnline: boolean;
   withoutIntervals?: boolean;
   slotDurationMinutes?: number;
-  meetingLink: string;
+  meetingLink?: string;
+  audienceNumber?: string;
   description?: string;
 }
 
@@ -77,7 +85,9 @@ export interface MyConsultationItem {
   id: number;
   subject: string;
   description: string | null;
-  meetingLink: string;
+  meetingLink: string | null;
+  audienceNumber: string | null;
+  isOnline: boolean;
   withoutIntervals: boolean;
   slotDurationMinutes: number | null;
   startsAt: string;
