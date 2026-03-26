@@ -4,11 +4,13 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControlLabel,
   MenuItem,
   Stack,
   TextField,
@@ -31,6 +33,7 @@ type TeacherConsultationCreateFormValues = {
   date: string;
   startTime: string;
   endTime: string;
+  withoutIntervals: boolean;
   slotDurationMinutes: number;
 };
 
@@ -41,6 +44,7 @@ const defaultValues: TeacherConsultationCreateFormValues = {
   date: '',
   startTime: '',
   endTime: '',
+  withoutIntervals: false,
   slotDurationMinutes: 30,
 };
 
@@ -135,7 +139,8 @@ const mapConsultationToFormValues = (
     date: toLocalDateInputValue(consultation.startsAt),
     startTime: toLocalTimeInputValue(consultation.startsAt),
     endTime: toLocalTimeInputValue(consultation.endsAt),
-    slotDurationMinutes: consultation.slotDurationMinutes,
+    withoutIntervals: consultation.withoutIntervals,
+    slotDurationMinutes: consultation.slotDurationMinutes ?? 30,
   };
 };
 
@@ -144,6 +149,14 @@ const sectionCardStyles = {
   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.10)',
   backgroundColor: '#FFFFFF',
   border: '1px solid #E9E9E9',
+};
+
+const getAvailabilityText = (consultation: MyConsultationItem) => {
+  if (consultation.withoutIntervals) {
+    return 'Свободно';
+  }
+
+  return `Свободно: ${consultation.slotsAvailable}/${consultation.slotsTotal}`;
 };
 
 const TeacherConsultationCreate = () => {
@@ -176,8 +189,11 @@ const TeacherConsultationCreate = () => {
     reset,
     setError,
     clearErrors,
+    watch,
     formState: { errors, isDirty },
   } = form;
+
+  const withoutIntervals = watch('withoutIntervals');
 
   const sortedConsultations = useMemo(() => {
     if (!myConsultations) return [];
@@ -236,13 +252,24 @@ const TeacherConsultationCreate = () => {
       return;
     }
 
+    if (!values.withoutIntervals && !Number.isInteger(Number(values.slotDurationMinutes))) {
+      setError('root', {
+        type: 'manual',
+        message: 'Укажите длительность интервала.',
+      });
+      return;
+    }
+
     const payload = {
       subject: values.subject.trim(),
       description: values.description.trim() || undefined,
       meetingLink: values.meetingLink.trim(),
       startsAt,
       endsAt,
-      slotDurationMinutes: Number(values.slotDurationMinutes),
+      withoutIntervals: values.withoutIntervals,
+      slotDurationMinutes: values.withoutIntervals
+        ? undefined
+        : Number(values.slotDurationMinutes),
     };
 
     try {
@@ -318,81 +345,80 @@ const TeacherConsultationCreate = () => {
           <Box sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography
               sx={{
-                fontSize: { xs: '24px', sm: '28px' },
+                fontSize: { xs: '22px', sm: '24px' },
                 fontWeight: 700,
                 lineHeight: 1.2,
                 mb: 3,
               }}
             >
-              {isEditMode ? 'Редактирование консультации' : 'Создать консультацию'}
+              {isEditMode ? 'Редактирование консультации' : 'Создание консультации'}
             </Typography>
 
-            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
               <Stack spacing={2.5}>
-                {isEditMode ? (
-                  <Alert severity="info">
-                    Вы редактируете консультацию. Чтобы выйти из режима редактирования, нажмите
-                    «Отменить».
-                  </Alert>
-                ) : null}
-
                 {successMessage ? <Alert severity="success">{successMessage}</Alert> : null}
 
                 {errors.root?.message ? <Alert severity="error">{errors.root.message}</Alert> : null}
 
                 <TextField
-                  label="Название предмета"
+                  label="Тема консультации"
                   fullWidth
                   {...register('subject', {
-                    required: 'Введите название предмета.',
-                    validate: (value) =>
-                      value.trim().length > 0 || 'Введите название предмета.',
+                    required: 'Введите тему консультации',
+                    maxLength: {
+                      value: 120,
+                      message: 'Максимум 120 символов',
+                    },
                   })}
                   error={Boolean(errors.subject)}
                   helperText={errors.subject?.message}
                 />
 
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                <TextField
+                  label="Ссылка на консультацию"
+                  fullWidth
+                  {...register('meetingLink', {
+                    required: 'Введите ссылку на консультацию',
+                    maxLength: {
+                      value: 500,
+                      message: 'Максимум 500 символов',
+                    },
+                  })}
+                  error={Boolean(errors.meetingLink)}
+                  helperText={errors.meetingLink?.message}
+                />
+
+                <FormControlLabel
+                  control={<Checkbox {...register('withoutIntervals')} checked={withoutIntervals} />}
+                  label="Без интервалов"
+                />
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' },
+                    gap: 2,
+                  }}
+                >
                   <TextField
-                    label="Дата проведения"
+                    label="Дата"
                     type="date"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
                     {...register('date', {
-                      required: 'Выберите дату.',
+                      required: 'Выберите дату',
                     })}
                     error={Boolean(errors.date)}
                     helperText={errors.date?.message}
                   />
 
                   <TextField
-                    select
-                    label="Интервал приёма"
-                    fullWidth
-                    defaultValue={30}
-                    {...register('slotDurationMinutes', {
-                      required: 'Выберите длительность слота.',
-                      valueAsNumber: true,
-                    })}
-                    error={Boolean(errors.slotDurationMinutes)}
-                    helperText={errors.slotDurationMinutes?.message}
-                  >
-                    {slotDurationOptions.map((minutes) => (
-                      <MenuItem key={minutes} value={minutes}>
-                        {minutes} минут
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Stack>
-
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                  <TextField
                     label="Время начала"
                     type="time"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
                     {...register('startTime', {
-                      required: 'Укажите время начала.',
+                      required: 'Укажите время начала',
                     })}
                     error={Boolean(errors.startTime)}
                     helperText={errors.startTime?.message}
@@ -404,24 +430,33 @@ const TeacherConsultationCreate = () => {
                     fullWidth
                     InputLabelProps={{ shrink: true }}
                     {...register('endTime', {
-                      required: 'Укажите время окончания.',
+                      required: 'Укажите время окончания',
                     })}
                     error={Boolean(errors.endTime)}
                     helperText={errors.endTime?.message}
                   />
-                </Stack>
+                </Box>
 
-                <TextField
-                  label="Ссылка на консультацию"
-                  fullWidth
-                  {...register('meetingLink', {
-                    required: 'Введите ссылку на встречу.',
-                    validate: (value) =>
-                      value.trim().length > 0 || 'Введите ссылку на встречу.',
-                  })}
-                  error={Boolean(errors.meetingLink)}
-                  helperText={errors.meetingLink?.message}
-                />
+                {!withoutIntervals ? (
+                  <TextField
+                    label="Длительность интервала"
+                    select
+                    fullWidth
+                    defaultValue={defaultValues.slotDurationMinutes}
+                    {...register('slotDurationMinutes', {
+                      valueAsNumber: true,
+                      required: 'Выберите длительность интервала',
+                    })}
+                    error={Boolean(errors.slotDurationMinutes)}
+                    helperText={errors.slotDurationMinutes?.message}
+                  >
+                    {slotDurationOptions.map((value) => (
+                      <MenuItem key={value} value={value}>
+                        {value} мин
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                ) : null}
 
                 <TextField
                   label="Описание консультации"
@@ -567,10 +602,10 @@ const TeacherConsultationCreate = () => {
 
                           <Box>
                             <Typography sx={{ fontWeight: 600 }}>
-                              Свободно: {consultation.slotsAvailable}/{consultation.slotsTotal}
+                              {getAvailabilityText(consultation)}
                             </Typography>
                             <Typography sx={{ color: 'text.secondary', mt: 0.5 }}>
-                              Забронировано: {consultation.slotsBooked}
+                              Записей: {consultation.slotsBooked}
                             </Typography>
                           </Box>
                         </Stack>
@@ -584,9 +619,13 @@ const TeacherConsultationCreate = () => {
                             Время: {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                           </Typography>
 
-                          <Typography color="text.secondary">
-                            Длительность слота: {consultation.slotDurationMinutes} мин
-                          </Typography>
+                          {!consultation.withoutIntervals ? (
+                            <Typography color="text.secondary">
+                              Длительность слота: {consultation.slotDurationMinutes} мин
+                            </Typography>
+                          ) : (
+                            <Typography color="text.secondary">Формат записи: без интервалов</Typography>
+                          )}
 
                           <Typography
                             color="text.secondary"
@@ -599,7 +638,7 @@ const TeacherConsultationCreate = () => {
                         {!canManage ? (
                           <Alert severity="warning">
                             Эту консультацию нельзя редактировать или удалить. Причина: она уже
-                            началась или в ней есть забронированные слоты.
+                            началась или в ней есть записи.
                           </Alert>
                         ) : null}
 

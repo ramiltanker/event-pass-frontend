@@ -67,6 +67,18 @@ const getAvatarInitials = (teacherName: string) => {
   return [first, second].filter(Boolean).join('.');
 };
 
+const getAvailabilityText = (
+  withoutIntervals: boolean,
+  slotsAvailable: number | null,
+  slotsTotal: number | null,
+) => {
+  if (withoutIntervals) {
+    return 'Свободно';
+  }
+
+  return `Свободно: ${slotsAvailable}/${slotsTotal}`;
+};
+
 const ConsultationsPage = () => {
   const navigate = useNavigate();
   const { data, isLoading, isError } = useGetConsultationsQuery();
@@ -148,7 +160,10 @@ const ConsultationsPage = () => {
               }}
             >
               {filteredConsultations.map((consultation) => {
-                const isAvailable = consultation.slotsAvailable > 0;
+                const isAvailable = consultation.withoutIntervals
+                  ? true
+                  : (consultation.slotsAvailable ?? 0) > 0;
+
                 const availabilityColor = isAvailable ? GREEN_COLOR : RED_COLOR;
 
                 return (
@@ -175,7 +190,11 @@ const ConsultationsPage = () => {
                           wordBreak: 'break-word',
                         }}
                       >
-                        Свободно: {consultation.slotsAvailable}/{consultation.slotsTotal}
+                        {getAvailabilityText(
+                          consultation.withoutIntervals,
+                          consultation.slotsAvailable,
+                          consultation.slotsTotal,
+                        )}
                       </Typography>
                     </Box>
 
@@ -263,6 +282,19 @@ const ConsultationsPage = () => {
                             {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                           </Typography>
                         </Stack>
+
+                        {consultation.withoutIntervals ? (
+                          <Typography
+                            sx={{
+                              color: TEXT_SECONDARY,
+                              fontSize: '16px',
+                              lineHeight: 1.2,
+                              wordBreak: 'break-word',
+                            }}
+                          >
+                            Запись без выбора интервала
+                          </Typography>
+                        ) : null}
                       </Stack>
                     </Box>
 

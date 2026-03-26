@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 
 import {
+  useBookConsultationWithoutIntervalsMutation,
   useBookSlotMutation,
   useGetConsultationByIdQuery,
   useGetConsultationSlotsQuery,
@@ -99,6 +100,18 @@ const getApiErrorMessage = (error: unknown) => {
   return 'Не удалось выполнить запись.';
 };
 
+const getAvailabilityText = (
+  withoutIntervals: boolean,
+  slotsAvailable: number | null,
+  slotsTotal: number | null,
+) => {
+  if (withoutIntervals) {
+    return 'Свободно';
+  }
+
+  return `Свободно: ${slotsAvailable}/${slotsTotal}`;
+};
+
 const ConsultationBookingPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -121,10 +134,14 @@ const ConsultationBookingPage = () => {
     isError: isSlotsError,
     refetch: refetchSlots,
   } = useGetConsultationSlotsQuery(consultationId, {
-    skip: !isValidConsultationId,
+    skip: !isValidConsultationId || consultation?.withoutIntervals === true,
   });
 
-  const [bookSlot, { isLoading: isBooking }] = useBookSlotMutation();
+  const [bookSlot, { isLoading: isBookingSlot }] = useBookSlotMutation();
+  const [bookWithoutIntervals, { isLoading: isBookingWithoutIntervals }] =
+    useBookConsultationWithoutIntervalsMutation();
+
+  const isBooking = isBookingSlot || isBookingWithoutIntervals;
 
   const [selectedSlotId, setSelectedSlotId] = useState('');
   const [slotError, setSlotError] = useState('');
@@ -181,23 +198,46 @@ const ConsultationBookingPage = () => {
       open: false,
     }));
 
-    if (!selectedSlotId) {
-      setSlotError('Выберите время консультации.');
-      return;
-    }
-
-    setSlotError('');
+    const body = {
+      firstName: values.firstName.trim(),
+      lastName: values.lastName.trim(),
+      middleName: values.middleName?.trim() || undefined,
+      email: values.email.trim(),
+      group: values.group.trim(),
+    };
 
     try {
+      if (consultation?.withoutIntervals) {
+        const result = await bookWithoutIntervals({
+          consultationId,
+          body,
+        }).unwrap();
+
+        reset();
+
+        openResultModal(
+          'success',
+          'Запись подтверждена',
+          `Вы успешно записаны на консультацию "${result.subject}" на время ${formatTimeRange(
+            result.startsAt,
+            result.endsAt,
+          )}. Ссылка на консультацию отправлена на вашу почту.`,
+        );
+
+        await refetchConsultation();
+        return;
+      }
+
+      if (!selectedSlotId) {
+        setSlotError('Выберите время консультации.');
+        return;
+      }
+
+      setSlotError('');
+
       const result = await bookSlot({
         slotId: Number(selectedSlotId),
-        body: {
-          firstName: values.firstName.trim(),
-          lastName: values.lastName.trim(),
-          middleName: values.middleName?.trim() || undefined,
-          email: values.email.trim(),
-          group: values.group.trim(),
-        },
+        body,
       }).unwrap();
 
       reset();
@@ -240,7 +280,7 @@ const ConsultationBookingPage = () => {
     );
   }
 
-  if (isConsultationLoading || isSlotsLoading) {
+  if (isConsultationLoading || (!consultation?.withoutIntervals && isSlotsLoading)) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
         <CircularProgress />
@@ -372,14 +412,22 @@ const ConsultationBookingPage = () => {
 
                 <Typography
                   sx={{
-                    color: consultation.slotsAvailable > 0 ? '#15803D' : RED_COLOR,
+                    color: consultation.withoutIntervals
+                      ? '#15803D'
+                      : (consultation.slotsAvailable ?? 0) > 0
+                        ? '#15803D'
+                        : RED_COLOR,
                     fontSize: '18px',
                     fontWeight: 700,
                     lineHeight: 1.2,
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  Свободно: {consultation.slotsAvailable}/{consultation.slotsTotal}
+                  {getAvailabilityText(
+                    consultation.withoutIntervals,
+                    consultation.slotsAvailable,
+                    consultation.slotsTotal,
+                  )}
                 </Typography>
               </Box>
 
@@ -409,6 +457,18 @@ const ConsultationBookingPage = () => {
                     {formatTimeRange(consultation.startsAt, consultation.endsAt)}
                   </Typography>
                 </Stack>
+
+                {consultation.withoutIntervals ? (
+                  <Typography
+                    sx={{
+                      color: TEXT_SECONDARY,
+                      fontSize: '16px',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Запись без выбора интервала
+                  </Typography>
+                ) : null}
               </Stack>
 
               <Box
@@ -465,7 +525,9 @@ const ConsultationBookingPage = () => {
               Запись на консультацию
             </Typography>
 
-            {isSlotsError && <Alert severity="error">Не удалось загрузить доступное время.</Alert>}
+            {!consultation.withoutIntervals && isSlotsError ? (
+              <Alert severity="error">Не удалось загрузить доступное время.</Alert>
+            ) : null}
 
             <Box component="form" onSubmit={onSubmit}>
               <Stack spacing={2.5}>
@@ -559,54 +621,11 @@ const ConsultationBookingPage = () => {
                   helperText={errors.group?.message}
                 />
 
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', md: '1fr 260px' },
-                    gap: 2,
-                    alignItems: 'start',
-                  }}
-                >
-                  <FormControl fullWidth error={!!slotError}>
-                    <Select
-                      displayEmpty
-                      value={selectedSlotId}
-                      onChange={(event) => {
-                        setSelectedSlotId(event.target.value);
-                        setSlotError('');
-                      }}
-                      renderValue={(value) => {
-                        if (!value) return 'Выберите время';
-
-                        const currentSlot = availableSlots.find(
-                          (slot) => String(slot.id) === String(value),
-                        );
-
-                        return currentSlot
-                          ? formatTimeRange(currentSlot.startsAt, currentSlot.endsAt)
-                          : 'Выберите время';
-                      }}
-                    >
-                      {availableSlots.length === 0 ? (
-                        <MenuItem disabled value="">
-                          Свободных интервалов нет
-                        </MenuItem>
-                      ) : (
-                        availableSlots.map((slot) => (
-                          <MenuItem key={slot.id} value={String(slot.id)}>
-                            {formatTimeRange(slot.startsAt, slot.endsAt)}
-                          </MenuItem>
-                        ))
-                      )}
-                    </Select>
-
-                    {slotError ? <FormHelperText>{slotError}</FormHelperText> : null}
-                  </FormControl>
-
+                {consultation.withoutIntervals ? (
                   <Button
                     type="submit"
                     variant="contained"
-                    disabled={availableSlots.length === 0 || isBooking}
+                    disabled={isBooking}
                     sx={{
                       minHeight: 56,
                       borderRadius: '10px',
@@ -623,7 +642,73 @@ const ConsultationBookingPage = () => {
                   >
                     {isBooking ? 'Запись...' : 'Записаться'}
                   </Button>
-                </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: { xs: '1fr', md: '1fr 260px' },
+                      gap: 2,
+                      alignItems: 'start',
+                    }}
+                  >
+                    <FormControl fullWidth error={!!slotError}>
+                      <Select
+                        displayEmpty
+                        value={selectedSlotId}
+                        onChange={(event) => {
+                          setSelectedSlotId(event.target.value);
+                          setSlotError('');
+                        }}
+                        renderValue={(value) => {
+                          if (!value) return 'Выберите время';
+
+                          const currentSlot = availableSlots.find(
+                            (slot) => String(slot.id) === String(value),
+                          );
+
+                          return currentSlot
+                            ? formatTimeRange(currentSlot.startsAt, currentSlot.endsAt)
+                            : 'Выберите время';
+                        }}
+                      >
+                        {availableSlots.length === 0 ? (
+                          <MenuItem disabled value="">
+                            Свободных интервалов нет
+                          </MenuItem>
+                        ) : (
+                          availableSlots.map((slot) => (
+                            <MenuItem key={slot.id} value={String(slot.id)}>
+                              {formatTimeRange(slot.startsAt, slot.endsAt)}
+                            </MenuItem>
+                          ))
+                        )}
+                      </Select>
+
+                      {slotError ? <FormHelperText>{slotError}</FormHelperText> : null}
+                    </FormControl>
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={availableSlots.length === 0 || isBooking}
+                      sx={{
+                        minHeight: 56,
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        backgroundColor: RED_COLOR,
+                        boxShadow: 'none',
+                        '&:hover': {
+                          backgroundColor: RED_COLOR,
+                          boxShadow: 'none',
+                        },
+                      }}
+                    >
+                      {isBooking ? 'Запись...' : 'Записаться'}
+                    </Button>
+                  </Box>
+                )}
               </Stack>
             </Box>
           </Stack>
@@ -645,8 +730,7 @@ const ConsultationBookingPage = () => {
           <Typography
             sx={{
               color: TEXT_SECONDARY,
-              fontSize: '16px',
-              lineHeight: 1.5,
+              lineHeight: 1.6,
             }}
           >
             {resultModal.message}
@@ -659,7 +743,6 @@ const ConsultationBookingPage = () => {
             variant="contained"
             sx={{
               textTransform: 'none',
-              fontWeight: 600,
               backgroundColor: RED_COLOR,
               '&:hover': {
                 backgroundColor: RED_COLOR,

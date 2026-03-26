@@ -4,6 +4,7 @@ export type {
   ConsultationSlot,
   BookSlotPayload,
   BookSlotRequest,
+  BookConsultationWithoutIntervalsRequest,
   BookSlotResponse,
   CreateConsultationPayload,
   CreateConsultationResponse,

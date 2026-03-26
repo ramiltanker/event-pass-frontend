@@ -4,9 +4,10 @@ export interface ConsultationListItem {
   startsAt: string;
   endsAt: string;
   teacherName: string;
-  slotsTotal: number;
+  withoutIntervals: boolean;
+  slotsTotal: number | null;
   slotsBooked: number;
-  slotsAvailable: number;
+  slotsAvailable: number | null;
 }
 
 export interface ConsultationDetails {
@@ -16,9 +17,10 @@ export interface ConsultationDetails {
   startsAt: string;
   endsAt: string;
   teacherName: string;
-  slotsTotal: number;
+  withoutIntervals: boolean;
+  slotsTotal: number | null;
   slotsBooked: number;
-  slotsAvailable: number;
+  slotsAvailable: number | null;
 }
 
 export interface ConsultationSlot {
@@ -41,10 +43,15 @@ export interface BookSlotRequest {
   body: BookSlotPayload;
 }
 
+export interface BookConsultationWithoutIntervalsRequest {
+  consultationId: number;
+  body: BookSlotPayload;
+}
+
 export interface BookSlotResponse {
   ok: boolean;
   bookingId: number;
-  slotId: number;
+  slotId: number | null;
   consultationId: number;
   subject: string;
   startsAt: string;
@@ -55,7 +62,8 @@ export interface CreateConsultationPayload {
   subject: string;
   startsAt: string;
   endsAt: string;
-  slotDurationMinutes: number;
+  withoutIntervals?: boolean;
+  slotDurationMinutes?: number;
   meetingLink: string;
   description?: string;
 }
@@ -70,12 +78,13 @@ export interface MyConsultationItem {
   subject: string;
   description: string | null;
   meetingLink: string;
-  slotDurationMinutes: number;
+  withoutIntervals: boolean;
+  slotDurationMinutes: number | null;
   startsAt: string;
   endsAt: string;
-  slotsTotal: number;
+  slotsTotal: number | null;
   slotsBooked: number;
-  slotsAvailable: number;
+  slotsAvailable: number | null;
 }
 
 export interface UpdateConsultationRequest {

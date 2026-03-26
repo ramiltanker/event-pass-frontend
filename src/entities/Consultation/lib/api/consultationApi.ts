@@ -1,4 +1,5 @@
 import type {
+  BookConsultationWithoutIntervalsRequest,
   BookSlotRequest,
   BookSlotResponse,
   ConsultationDetails,
@@ -26,6 +27,16 @@ export const consultationApi = api.injectEndpoints({
         body,
       }),
     }),
+    bookConsultationWithoutIntervals: builder.mutation<
+      BookSlotResponse,
+      BookConsultationWithoutIntervalsRequest
+    >({
+      query: ({ consultationId, body }) => ({
+        url: `/consultations/${consultationId}/book`,
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -34,4 +45,5 @@ export const {
   useGetConsultationByIdQuery,
   useGetConsultationSlotsQuery,
   useBookSlotMutation,
+  useBookConsultationWithoutIntervalsMutation,
 } = consultationApi;
