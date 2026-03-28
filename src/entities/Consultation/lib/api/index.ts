@@ -3,6 +3,7 @@ export {
   useGetConsultationByIdQuery,
   useGetConsultationSlotsQuery,
   useBookSlotMutation,
+  useBookConsultationWithoutIntervalsMutation,
 } from './consultationApi';
 
 export {

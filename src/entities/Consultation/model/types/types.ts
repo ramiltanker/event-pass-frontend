@@ -4,9 +4,12 @@ export interface ConsultationListItem {
   startsAt: string;
   endsAt: string;
   teacherName: string;
-  slotsTotal: number;
+  isOnline: boolean;
+  audienceNumber: string | null;
+  withoutIntervals: boolean;
+  slotsTotal: number | null;
   slotsBooked: number;
-  slotsAvailable: number;
+  slotsAvailable: number | null;
 }
 
 export interface ConsultationDetails {
@@ -16,9 +19,12 @@ export interface ConsultationDetails {
   startsAt: string;
   endsAt: string;
   teacherName: string;
-  slotsTotal: number;
+  isOnline: boolean;
+  audienceNumber: string | null;
+  withoutIntervals: boolean;
+  slotsTotal: number | null;
   slotsBooked: number;
-  slotsAvailable: number;
+  slotsAvailable: number | null;
 }
 
 export interface ConsultationSlot {
@@ -41,22 +47,32 @@ export interface BookSlotRequest {
   body: BookSlotPayload;
 }
 
+export interface BookConsultationWithoutIntervalsRequest {
+  consultationId: number;
+  body: BookSlotPayload;
+}
+
 export interface BookSlotResponse {
   ok: boolean;
   bookingId: number;
-  slotId: number;
+  slotId: number | null;
   consultationId: number;
   subject: string;
   startsAt: string;
   endsAt: string;
+  isOnline: boolean;
+  audienceNumber: string | null;
 }
 
 export interface CreateConsultationPayload {
   subject: string;
   startsAt: string;
   endsAt: string;
-  slotDurationMinutes: number;
-  meetingLink: string;
+  isOnline: boolean;
+  withoutIntervals?: boolean;
+  slotDurationMinutes?: number;
+  meetingLink?: string;
+  audienceNumber?: string;
   description?: string;
 }
 
@@ -69,13 +85,16 @@ export interface MyConsultationItem {
   id: number;
   subject: string;
   description: string | null;
-  meetingLink: string;
-  slotDurationMinutes: number;
+  meetingLink: string | null;
+  audienceNumber: string | null;
+  isOnline: boolean;
+  withoutIntervals: boolean;
+  slotDurationMinutes: number | null;
   startsAt: string;
   endsAt: string;
-  slotsTotal: number;
+  slotsTotal: number | null;
   slotsBooked: number;
-  slotsAvailable: number;
+  slotsAvailable: number | null;
 }
 
 export interface UpdateConsultationRequest {
