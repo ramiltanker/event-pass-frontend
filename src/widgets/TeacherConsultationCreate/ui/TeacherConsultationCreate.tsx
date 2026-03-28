@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
   type MyConsultationItem,
@@ -196,6 +196,7 @@ const TeacherConsultationCreate = () => {
   });
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -225,10 +226,12 @@ const TeacherConsultationCreate = () => {
   };
 
   const handleStartEdit = (consultation: MyConsultationItem) => {
+    const values = mapConsultationToFormValues(consultation);
+
     setSuccessMessage('');
     clearErrors();
+    reset(values);
     setEditingConsultation(consultation);
-    reset(mapConsultationToFormValues(consultation));
   };
 
   const handleCancelEdit = () => {
@@ -257,7 +260,6 @@ const TeacherConsultationCreate = () => {
       });
       return;
     }
-
 
     if (!values.withoutIntervals && !Number.isInteger(Number(values.slotDurationMinutes))) {
       setError('root', {
@@ -292,9 +294,7 @@ const TeacherConsultationCreate = () => {
       startsAt,
       endsAt,
       withoutIntervals: values.withoutIntervals,
-      slotDurationMinutes: values.withoutIntervals
-        ? undefined
-        : Number(values.slotDurationMinutes),
+      slotDurationMinutes: values.withoutIntervals ? undefined : Number(values.slotDurationMinutes),
     };
 
     try {
@@ -359,8 +359,6 @@ const TeacherConsultationCreate = () => {
     }
   };
 
-
-
   return (
     <>
       <Stack spacing={3}>
@@ -381,20 +379,29 @@ const TeacherConsultationCreate = () => {
               <Stack spacing={2.5}>
                 {successMessage ? <Alert severity="success">{successMessage}</Alert> : null}
 
-                {errors.root?.message ? <Alert severity="error">{errors.root.message}</Alert> : null}
+                {errors.root?.message ? (
+                  <Alert severity="error">{errors.root.message}</Alert>
+                ) : null}
 
-                <TextField
-                  label="Тема консультации"
-                  fullWidth
-                  {...register('subject', {
+                <Controller
+                  name="subject"
+                  control={control}
+                  rules={{
                     required: 'Введите тему консультации',
                     maxLength: {
                       value: 120,
                       message: 'Максимум 120 символов',
                     },
-                  })}
-                  error={Boolean(errors.subject)}
-                  helperText={errors.subject?.message}
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Тема консультации"
+                      fullWidth
+                      error={Boolean(errors.subject)}
+                      helperText={errors.subject?.message}
+                    />
+                  )}
                 />
 
                 <TextField
@@ -413,35 +420,53 @@ const TeacherConsultationCreate = () => {
                 </TextField>
 
                 {isOnline ? (
-                  <TextField
-                    label="Ссылка на консультацию"
-                    fullWidth
-                    {...register('meetingLink', {
+                  <Controller
+                    name="meetingLink"
+                    control={control}
+                    rules={{
                       maxLength: {
                         value: 500,
                         message: 'Максимум 500 символов',
                       },
-                    })}
-                    error={Boolean(errors.meetingLink)}
-                    helperText={errors.meetingLink?.message}
+                    }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Ссылка на консультацию"
+                        fullWidth
+                        value={field.value ?? ''}
+                        error={Boolean(errors.meetingLink)}
+                        helperText={errors.meetingLink?.message}
+                      />
+                    )}
                   />
                 ) : (
-                  <TextField
-                    label="Номер аудитории"
-                    fullWidth
-                    {...register('audienceNumber', {
+                  <Controller
+                    name="audienceNumber"
+                    control={control}
+                    rules={{
                       maxLength: {
                         value: 120,
                         message: 'Максимум 120 символов',
                       },
-                    })}
-                    error={Boolean(errors.audienceNumber)}
-                    helperText={errors.audienceNumber?.message}
+                    }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Номер аудитории"
+                        fullWidth
+                        value={field.value ?? ''}
+                        error={Boolean(errors.audienceNumber)}
+                        helperText={errors.audienceNumber?.message}
+                      />
+                    )}
                   />
                 )}
 
                 <FormControlLabel
-                  control={<Checkbox {...register('withoutIntervals')} checked={withoutIntervals} />}
+                  control={
+                    <Checkbox {...register('withoutIntervals')} checked={withoutIntervals} />
+                  }
                   label="Без интервалов"
                 />
 
@@ -510,14 +535,27 @@ const TeacherConsultationCreate = () => {
                   </TextField>
                 ) : null}
 
-                <TextField
-                  label="Описание консультации"
-                  fullWidth
-                  multiline
-                  minRows={4}
-                  {...register('description')}
-                  error={Boolean(errors.description)}
-                  helperText={errors.description?.message}
+                <Controller
+                  name="description"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 2000,
+                      message: 'Максимум 2000 символов',
+                    },
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Описание консультации"
+                      fullWidth
+                      multiline
+                      minRows={4}
+                      value={field.value ?? ''}
+                      error={Boolean(errors.description)}
+                      helperText={errors.description?.message}
+                    />
+                  )}
                 />
 
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -604,7 +642,6 @@ const TeacherConsultationCreate = () => {
               ) : null}
 
               {sortedConsultations.map((consultation) => {
-
                 return (
                   <Card
                     key={consultation.id}
@@ -679,7 +716,9 @@ const TeacherConsultationCreate = () => {
                               Длительность слота: {consultation.slotDurationMinutes} мин
                             </Typography>
                           ) : (
-                            <Typography color="text.secondary">Формат записи: без интервалов</Typography>
+                            <Typography color="text.secondary">
+                              Формат записи: без интервалов
+                            </Typography>
                           )}
 
                           {consultation.isOnline ? (
@@ -698,9 +737,9 @@ const TeacherConsultationCreate = () => {
 
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                           <Button
-  variant="outlined"
-  disabled={isSubmitting || isDeleting}
-  onClick={() => handleStartEdit(consultation)}
+                            variant="outlined"
+                            disabled={isSubmitting || isDeleting}
+                            onClick={() => handleStartEdit(consultation)}
                             sx={{
                               minHeight: 44,
                               borderRadius: '10px',
@@ -712,10 +751,10 @@ const TeacherConsultationCreate = () => {
                           </Button>
 
                           <Button
-  variant="contained"
-  color="error"
-  disabled={isSubmitting || isDeleting}
-  onClick={() => setConsultationToDelete(consultation)}
+                            variant="contained"
+                            color="error"
+                            disabled={isSubmitting || isDeleting}
+                            onClick={() => setConsultationToDelete(consultation)}
                             sx={{
                               minHeight: 44,
                               borderRadius: '10px',
