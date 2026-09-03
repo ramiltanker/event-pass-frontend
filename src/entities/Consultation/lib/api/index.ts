@@ -11,4 +11,5 @@ export {
   useCreateConsultationMutation,
   useUpdateConsultationMutation,
   useDeleteConsultationMutation,
+  useExportMyConsultationsMutation,
 } from './privateConsultationApi';

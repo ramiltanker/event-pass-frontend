@@ -8,6 +8,7 @@ export {
   useCreateConsultationMutation,
   useUpdateConsultationMutation,
   useDeleteConsultationMutation,
+  useExportMyConsultationsMutation,
 } from './lib/api';
 
 export type {
@@ -23,4 +24,5 @@ export type {
   MyConsultationItem,
   UpdateConsultationRequest,
   DeleteConsultationResponse,
+  ExportMyConsultationsResponse,
 } from './model/types';

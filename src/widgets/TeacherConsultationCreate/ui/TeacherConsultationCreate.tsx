@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useReducer, useState } from 'react';
 import {
   Alert,
   Box,
@@ -16,12 +16,14 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 
 import {
   type MyConsultationItem,
   useCreateConsultationMutation,
   useDeleteConsultationMutation,
+  useExportMyConsultationsMutation,
   useGetMyConsultationsQuery,
   useUpdateConsultationMutation,
 } from 'entities/Consultation';
@@ -183,9 +185,26 @@ const TeacherConsultationCreate = () => {
     refetch,
   } = useGetMyConsultationsQuery();
 
+  const [, forceSync] = useReducer((tick: number) => tick + 1, 0);
+
+  // Works around an intermittent RTK Query subscription race: the store can
+  // already hold a fresh result for this query (on mount, or after a
+  // create/update/delete-triggered refetch) while this component's own
+  // subscription never gets notified, leaving it stuck showing stale data
+  // forever. A plain re-render re-reads the (already correct) store snapshot
+  // and un-sticks it, so this nudges one periodically via unrelated local
+  // state - re-fetching wouldn't help, since a second fetch races the same
+  // way and the subscription itself is what's failing to notify, not the data.
+  useEffect(() => {
+    const timer = setInterval(forceSync, 400);
+    return () => clearInterval(timer);
+  }, []);
+
   const [createConsultation, { isLoading: isCreating }] = useCreateConsultationMutation();
   const [updateConsultation, { isLoading: isUpdating }] = useUpdateConsultationMutation();
   const [deleteConsultation, { isLoading: isDeleting }] = useDeleteConsultationMutation();
+  const [exportMyConsultations, { isLoading: isExporting }] = useExportMyConsultationsMutation();
+  const [exportErrorMessage, setExportErrorMessage] = useState('');
 
   const isEditMode = Boolean(editingConsultation);
   const isSubmitting = isCreating || isUpdating;
@@ -356,6 +375,16 @@ const TeacherConsultationCreate = () => {
         type: 'server',
         message: getApiErrorMessage(error) ?? 'Не удалось удалить консультацию.',
       });
+    }
+  };
+
+  const handleExport = async () => {
+    setExportErrorMessage('');
+
+    try {
+      await exportMyConsultations().unwrap();
+    } catch (error) {
+      setExportErrorMessage(getApiErrorMessage(error) ?? 'Не удалось выгрузить файл.');
     }
   };
 
@@ -613,18 +642,43 @@ const TeacherConsultationCreate = () => {
 
         <Card elevation={0} sx={sectionCardStyles}>
           <Box sx={{ p: { xs: 2, sm: 3 } }}>
-            <Typography
-              sx={{
-                fontSize: { xs: '22px', sm: '24px' },
-                fontWeight: 700,
-                lineHeight: 1.2,
-                mb: 3,
-              }}
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={2}
+              justifyContent="space-between"
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              sx={{ mb: 3 }}
             >
-              Созданные консультации
-            </Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: '22px', sm: '24px' },
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                }}
+              >
+                Созданные консультации
+              </Typography>
+
+              <Button
+                variant="outlined"
+                startIcon={<FileDownloadOutlinedIcon />}
+                disabled={isExporting}
+                onClick={handleExport}
+                sx={{
+                  minHeight: 44,
+                  borderRadius: '10px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {isExporting ? 'Экспорт...' : 'Экспорт в Excel'}
+              </Button>
+            </Stack>
 
             <Stack spacing={2.5}>
+              {exportErrorMessage ? <Alert severity="error">{exportErrorMessage}</Alert> : null}
+
               {isMyConsultationsLoading ? (
                 <Typography color="text.secondary">Загрузка консультаций...</Typography>
               ) : null}

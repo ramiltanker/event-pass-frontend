@@ -20,7 +20,7 @@ const ResetPasswordForm: FC<Props> = ({ token }) => {
   const [serverErrorMessage, setServerErrorMessage] = useState('');
   const [isTokenExpired, setIsTokenExpired] = useState(false);
 
-  const [resetPassword, { isLoading, error }] = useResetPasswordMutation();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const {
     control,

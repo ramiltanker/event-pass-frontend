@@ -1,5 +1,4 @@
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ContactMailRoundedIcon from '@mui/icons-material/ContactMailRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import HelpRoundedIcon from '@mui/icons-material/HelpRounded';

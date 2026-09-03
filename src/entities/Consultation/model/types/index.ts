@@ -11,4 +11,5 @@ export type {
   MyConsultationItem,
   UpdateConsultationRequest,
   DeleteConsultationResponse,
+  ExportMyConsultationsResponse,
 } from './types';

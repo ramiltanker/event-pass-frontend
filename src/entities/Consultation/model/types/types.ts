@@ -106,3 +106,7 @@ export interface DeleteConsultationResponse {
   ok: boolean;
   id: number;
 }
+
+export interface ExportMyConsultationsResponse {
+  filename: string;
+}

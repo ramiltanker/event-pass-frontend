@@ -81,17 +81,17 @@ const TeacherProfileCard = () => {
   }, [user]);
 
   const fullName = useMemo(() => {
-    return [values.lastName.trim(), values.firstName.trim(), values.middleName.trim()]
+    return [user?.lastName?.trim(), user?.firstName?.trim(), user?.middleName?.trim()]
       .filter(Boolean)
       .join(' ');
-  }, [values]);
+  }, [user]);
 
   const initials = useMemo(() => {
-    const firstLetter = values.firstName.trim()[0] ?? '';
-    const lastLetter = values.lastName.trim()[0] ?? '';
+    const firstLetter = user?.firstName?.trim()?.[0] ?? '';
+    const lastLetter = user?.lastName?.trim()?.[0] ?? '';
 
     return `${firstLetter}${lastLetter}`.toUpperCase() || 'T';
-  }, [values]);
+  }, [user]);
 
   const handleStartEdit = (field: FieldKey) => {
     setErrorMessage('');
